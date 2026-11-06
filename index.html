@@ -1,1850 +1,758 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🔥 جرأة وتحدي / Dare & Challenge</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1B0D22">
+<title>Truth or Dare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='14' y='8' width='36' height='48' rx='7' fill='%23F0306F' transform='rotate(-10 32 32)'/><rect x='14' y='8' width='36' height='48' rx='7' fill='%23FFF4E6'/><text x='32' y='42' font-size='26' text-anchor='middle' font-family='Arial' font-weight='900' fill='%231B0D22'>?</text></svg>">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --gold:#FFD700;--red:#FF1744;--green:#00E676;--blue:#448AFF;
-  --purple:#D500F9;--orange:#FF6D00;--pink:#F50057;
-  --dark:#07070F;--card:#0F0F1C;--surf:#181828;--surf2:#202038;
-  --txt:#F0F0FF;--dim:#5858A0;--brd:rgba(255,255,255,0.07);
-  --lv1:#00E676;--lv2:#448AFF;--lv3:#FF4081;--lv4:#D500F9;
+  --bg:#1B0D22; --bg2:#26122F; --surf:#2F183A; --surf2:#3B2148; --line:rgba(255,226,250,.12);
+  --txt:#F7EAF8; --mute:#B99CC3; --paper:#FFF4E6; --ink:#2A1230;
+  --light:#3FD3A6; --medium:#FFB547; --spicy:#FF7A55; --hot:#F0306F;
+  --c:var(--light); --r-lg:22px; --r-md:14px; --r-sm:10px;
+  --safe-b:env(safe-area-inset-bottom,0px);
 }
-html,body{height:100%;overflow:hidden;font-family:'Cairo','Tajawal',sans-serif;background:var(--dark);color:var(--txt);user-select:none}
-body{background-image:radial-gradient(ellipse at 15% 10%,rgba(100,0,220,0.18) 0%,transparent 55%),radial-gradient(ellipse at 85% 90%,rgba(255,60,0,0.12) 0%,transparent 55%)}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Rubik',system-ui,sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;
+  background-image:radial-gradient(120% 60% at 50% -10%,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%);
+  transition:background-color .4s}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--medium);outline-offset:2px}
+.app{position:fixed;inset:0;display:flex;flex-direction:column}
+.screen{flex:1;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:20px 18px calc(24px + var(--safe-b))}
+.screen.on{display:flex}
+.wrap{width:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px;flex:1}
 
-/* PARTICLES */
-#pts{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.pt{position:absolute;border-radius:50%;animation:ptUp linear infinite}
-@keyframes ptUp{0%{transform:translateY(105vh) scale(0);opacity:0}10%{opacity:.35}90%{opacity:.08}100%{transform:translateY(-5vh) scale(1.5);opacity:0}}
+/* top bar */
+.bar{display:flex;align-items:center;gap:10px;min-height:44px}
+.bar h2{flex:1;font-size:1.25rem;font-weight:800;text-align:center}
+.icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--surf);border:1px solid var(--line);font-size:1.1rem;position:relative;flex-shrink:0}
+.icon:active{transform:scale(.94)}
+.icon .badge{position:absolute;top:-3px;inset-inline-end:-3px;min-width:19px;height:19px;border-radius:10px;background:var(--hot);color:#fff;font-size:.7rem;font-weight:700;display:grid;place-items:center;padding:0 5px}
+[dir=rtl] .flip{transform:scaleX(-1)}
 
-/* SCREENS */
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;transition:opacity .4s,transform .4s;z-index:10;overflow-y:auto;overflow-x:hidden}
-.screen.off{opacity:0;pointer-events:none;transform:scale(.97)}
+/* lang chips */
+.langs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.langs button{padding:7px 13px;border-radius:30px;border:1px solid var(--line);font-size:.85rem;color:var(--mute);background:var(--bg2)}
+.langs button.sel{background:var(--txt);color:var(--bg);border-color:var(--txt);font-weight:700}
 
-/* LANG BTN */
-#langBtn{position:fixed;top:14px;left:14px;z-index:300;background:var(--surf2);border:1px solid var(--brd);border-radius:30px;padding:6px 14px;cursor:pointer;font-family:'Cairo',sans-serif;color:var(--gold);font-weight:700;font-size:.8rem;transition:.3s}
-#langBtn:hover{background:var(--gold);color:#000}
+/* home hero: a fanned hand of four category cards */
+.hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 0 8px}
+.fan{position:relative;width:200px;height:170px;margin-bottom:14px}
+.fan i{position:absolute;left:50%;bottom:0;width:92px;height:132px;margin-left:-46px;border-radius:14px;transform-origin:50% 120%;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:deal .9s cubic-bezier(.2,.9,.25,1.2) backwards}
+.fan i:nth-child(1){background:var(--light);transform:rotate(-27deg);animation-delay:.05s}
+.fan i:nth-child(2){background:var(--medium);transform:rotate(-9deg);animation-delay:.15s}
+.fan i:nth-child(3){background:var(--spicy);transform:rotate(9deg);animation-delay:.25s}
+.fan i:nth-child(4){background:var(--hot);transform:rotate(27deg);animation-delay:.35s;display:grid;place-items:center;font-style:normal;font-size:3rem;font-weight:900;color:var(--paper)}
+@keyframes deal{from{transform:rotate(0) translateY(40px);opacity:0}}
+.logo{font-size:clamp(2.1rem,9vw,2.9rem);font-weight:900;line-height:1.05;text-align:center;letter-spacing:-.01em}
+.tag{color:var(--mute);text-align:center;font-size:.98rem}
 
-/* LOGO */
-.logo{font-size:clamp(2.8rem,9vw,5rem);font-weight:900;text-align:center;line-height:1.1;background:linear-gradient(135deg,#FFD700 0%,#FF6D00 50%,#FF1744 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:glow 3s ease-in-out infinite}
-@keyframes glow{0%,100%{filter:drop-shadow(0 0 28px rgba(255,120,0,.5))}50%{filter:drop-shadow(0 0 55px rgba(255,120,0,.9))}}
-.sub{color:var(--dim);font-size:.82rem;margin-top:5px;text-align:center;letter-spacing:3px}
+/* big choices */
+.choice{display:flex;align-items:center;gap:14px;padding:18px;border-radius:var(--r-lg);background:var(--surf);border:1px solid var(--line);text-align:start;width:100%}
+.choice:active{transform:scale(.98)}
+.choice .em{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:1.6rem;flex-shrink:0}
+.choice b{display:block;font-size:1.12rem;font-weight:800}
+.choice small{color:var(--mute);font-size:.86rem}
+.choice.primary{background:var(--paper);color:var(--ink);border-color:transparent}
+.choice.primary small{color:#7B5A80}
+.linkbtn{color:var(--mute);text-decoration:underline;text-underline-offset:3px;font-size:.9rem;align-self:center;padding:8px}
 
-/* PANEL */
-.panel{background:var(--card);border:1px solid var(--brd);border-radius:22px;padding:24px;width:100%;max-width:430px;box-shadow:0 20px 70px rgba(0,0,0,.6)}
+/* buttons */
+.btn{min-height:52px;padding:0 20px;border-radius:var(--r-md);font-weight:700;font-size:1.02rem;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--surf2);border:1px solid var(--line)}
+.btn:active{transform:scale(.98)}
+.btn.main{background:var(--paper);color:var(--ink);border:0}
+.btn.accent{background:var(--c);color:var(--ink);border:0}
+.btn:disabled{opacity:.45;pointer-events:none}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
 
-/* BUTTONS */
-.btn{padding:13px 24px;border-radius:50px;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:.95rem;transition:all .25s;width:100%;display:block}
-.btn+.btn{margin-top:10px}
-.btn:active{transform:scale(.97)}
-.gold{background:linear-gradient(135deg,#FFD700,#FF8C00);color:#000;box-shadow:0 4px 22px rgba(255,180,0,.35)}
-.ghost{background:transparent;border:2px solid var(--brd);color:var(--txt)}
-.ghost:hover{border-color:var(--gold);color:var(--gold)}
-.danger{background:linear-gradient(135deg,#FF1744,#FF6D00);color:#fff}
-.blue-btn{background:linear-gradient(135deg,#448AFF,#7C4DFF);color:#fff}
-.sm{padding:7px 15px;font-size:.78rem;width:auto;display:inline-block}
+/* inputs */
+.field{display:flex;gap:8px;align-items:center}
+.inp{width:100%;min-height:52px;padding:0 16px;border-radius:var(--r-md);background:var(--bg2);border:1.5px solid var(--line);outline:none;font-size:1rem}
+.inp:focus{border-color:var(--paper)}
+.inp::placeholder{color:#8E7298}
+.code-inp{text-align:center;font-size:1.5rem;font-weight:800;letter-spacing:.35em;text-transform:uppercase}
+.lbl{font-size:.88rem;color:var(--mute);font-weight:500}
+.sep{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:.85rem}
+.sep:before,.sep:after{content:"";flex:1;height:1px;background:var(--line)}
+.del{width:44px;height:44px;border-radius:12px;background:var(--bg2);color:var(--mute);flex-shrink:0;font-size:1.1rem}
 
-/* INPUT */
-.inp{background:var(--surf2);border:1px solid var(--brd);border-radius:13px;padding:11px 15px;color:var(--txt);font-family:'Cairo',sans-serif;font-size:.92rem;width:100%;outline:none;transition:.3s}
-.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.1)}
-.inp::placeholder{color:var(--dim)}
-.inp+.btn,.inp+.inp{margin-top:10px}
-.lbl{display:block;font-size:.78rem;color:var(--dim);margin-bottom:5px;font-weight:600}
+/* categories */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cat{position:relative;border-radius:var(--r-lg);padding:18px 14px 16px;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;text-align:start;color:var(--ink);overflow:hidden}
+.cat:active{transform:scale(.97)}
+.cat .ce{position:absolute;top:12px;inset-inline-start:14px;font-size:2rem}
+.cat b{font-size:1.2rem;font-weight:800}
+.cat small{font-size:.82rem;opacity:.78}
+.cat .cn{position:absolute;top:14px;inset-inline-end:14px;font-size:.75rem;font-weight:700;background:rgba(0,0,0,.14);padding:3px 9px;border-radius:20px}
+.cat.sel{outline:3px solid var(--txt);outline-offset:3px}
 
-/* MODE GRID */
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
-.mode-card{background:var(--surf2);border:2px solid var(--brd);border-radius:16px;padding:18px 10px;cursor:pointer;transition:all .3s;text-align:center}
-.mode-card:hover,.mode-card.sel{border-color:var(--gold);background:rgba(255,215,0,.06);transform:translateY(-2px)}
-.mode-icon{font-size:2.1rem;display:block;margin-bottom:7px}
-.mode-lbl{font-weight:700;font-size:.86rem}
-.mode-desc{font-size:.68rem;color:var(--dim);margin-top:3px}
+/* lobby */
+.code-card{background:var(--paper);color:var(--ink);border-radius:var(--r-lg);padding:18px;text-align:center}
+.code-card .big{font-size:2.6rem;font-weight:900;letter-spacing:.3em;margin-inline-start:.3em}
+.plist{display:flex;flex-direction:column;gap:8px}
+.pl{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--surf);border:1px solid var(--line)}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:var(--ink);flex-shrink:0}
+.pl .nm{flex:1;font-weight:600}
+.pill{font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--surf2);color:var(--mute);white-space:nowrap}
+.hint{color:var(--mute);font-size:.88rem;text-align:center;line-height:1.6}
 
-/* CODE BOX */
-.code-box{background:linear-gradient(135deg,rgba(255,215,0,.07),rgba(255,100,0,.07));border:2px solid var(--gold);border-radius:14px;padding:14px;text-align:center;margin:12px 0}
-.code-big{font-size:2.5rem;font-weight:900;letter-spacing:10px;color:var(--gold);cursor:pointer;user-select:all}
-.code-tip{font-size:.7rem;color:var(--dim);margin-top:3px}
+/* game */
+#game{padding-top:12px}
+.catchip{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:30px;background:var(--surf);border:1px solid var(--line);font-weight:700;font-size:.95rem}
+.catchip i{width:12px;height:12px;border-radius:50%;background:var(--c)}
+.turn{text-align:center;padding:4px 0}
+.turn .who{font-size:1.5rem;font-weight:800}
+.turn .sub{color:var(--mute);font-size:.9rem;margin-top:2px}
+.turn.me .who{color:var(--c)}
+.stage{position:relative;flex:1;min-height:300px;display:flex;align-items:center;justify-content:center;padding:10px 4px 22px}
+.stack{position:relative;width:100%;max-width:400px;aspect-ratio:3/3.6;max-height:440px}
+.stack:before,.stack:after{content:"";position:absolute;inset:0;border-radius:26px;background:var(--c);opacity:.5}
+.stack:before{transform:rotate(-4deg) translateY(10px)}
+.stack:after{transform:rotate(3deg) translateY(6px);opacity:.75}
+.card{position:absolute;inset:0;z-index:2;border-radius:26px;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.4);touch-action:pan-y;user-select:none}
+.card.anim{animation:flipIn .45s cubic-bezier(.2,.8,.3,1)}
+@keyframes flipIn{from{transform:rotateY(80deg) scale(.92);opacity:.3}}
+.card .ty{align-self:flex-start;padding:6px 14px;border-radius:30px;font-weight:800;font-size:.92rem;background:var(--c);color:var(--ink)}
+.card .ty.d{background:var(--ink);color:var(--paper)}
+.card .q{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(1.25rem,5.4vw,1.6rem);font-weight:700;line-height:1.5;padding:10px 0;overflow-y:auto}
+.card .ft{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:#866A8C;font-weight:500}
+.card .res{font-weight:700}
+.card.empty .q{flex-direction:column;gap:6px;color:#866A8C;font-size:1.1rem}
+.card.empty .q b{font-size:3.4rem;color:var(--ink)}
+.blur .q{filter:blur(9px)}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick .btn{min-height:64px;font-size:1.15rem}
+.pick .t{background:var(--c);color:var(--ink);border:0}
+.pick .d{background:var(--paper);color:var(--ink);border:0}
+.pick .r{grid-column:1/-1;min-height:46px;font-size:.95rem;background:transparent}
+.acts{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px}
+.acts .btn{min-height:56px;font-size:.95rem;padding:0 8px}
+.nav{display:flex;align-items:center;gap:8px}
+.nav .btn{min-height:44px;font-size:.88rem;flex:1}
+.nav .pos{font-size:.82rem;color:var(--mute);min-width:90px;text-align:center}
+.scores{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+.scores::-webkit-scrollbar{display:none}
+.sc{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:6px 12px 6px 6px;border-radius:30px;background:var(--surf);border:1px solid var(--line);font-size:.88rem}
+[dir=rtl] .sc{padding:6px 6px 6px 12px}
+.sc .av{width:28px;height:28px;font-size:.8rem}
+.sc.cur{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,var(--surf))}
+.sc .talk{width:8px;height:8px;border-radius:50%;background:var(--light);box-shadow:0 0 0 4px rgba(63,211,166,.3);animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(63,211,166,.1)}}
 
-/* PLAYERS */
-.players-list{display:flex;flex-direction:column;gap:7px;margin:10px 0}
-.p-item{background:var(--surf2);border:1px solid var(--brd);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px}
-.p-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0;background:var(--surf)}
-.p-name{font-weight:700;flex:1;font-size:.9rem}
-.badge{font-size:.64rem;padding:2px 7px;border-radius:20px;font-weight:700}
-.host-b{background:rgba(255,215,0,.15);color:var(--gold)}
-.you-b{background:rgba(0,230,118,.15);color:var(--green)}
+/* sheets & modals */
+.veil{position:fixed;inset:0;background:rgba(10,3,14,.6);backdrop-filter:blur(3px);z-index:50;display:none}
+.veil.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:60;max-width:560px;margin:0 auto;background:var(--bg2);border-radius:24px 24px 0 0;border:1px solid var(--line);border-bottom:0;padding:10px 16px calc(16px + var(--safe-b));transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.3,1);display:flex;flex-direction:column;gap:12px;max-height:88vh}
+.sheet.on{transform:none}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line);align-self:center}
+.sheet h3{font-size:1.15rem;font-weight:800;display:flex;align-items:center;gap:10px}
+.sheet h3 span{flex:1}
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;max-width:400px;width:100%;display:flex;flex-direction:column;gap:14px;text-align:center}
+.modal .box h3{font-size:1.3rem;font-weight:800}
+.modal .box p{color:var(--mute);line-height:1.65}
 
-/* LEVEL SELECT */
-.lvl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:430px;margin:14px 0}
-.lvl-card{border-radius:18px;padding:22px 14px;cursor:pointer;transition:all .3s;text-align:center;border:2px solid transparent}
-.lvl-card:hover{transform:translateY(-3px)}
-.lv1{background:rgba(0,230,118,.09);border-color:rgba(0,230,118,.3);color:var(--lv1)}
-.lv2{background:rgba(68,138,255,.09);border-color:rgba(68,138,255,.3);color:var(--lv2)}
-.lv3{background:rgba(255,64,129,.09);border-color:rgba(255,64,129,.3);color:var(--lv3)}
-.lv4{background:rgba(213,0,249,.09);border-color:rgba(213,0,249,.3);color:var(--lv4)}
-.lvl-icon{font-size:2.4rem;display:block;margin-bottom:9px}
-.lvl-name{font-size:1.02rem;font-weight:900}
-.lvl-cnt{font-size:.71rem;opacity:.7;margin-top:3px}
-.age-tag{display:inline-block;background:var(--red);color:#fff;font-size:.64rem;font-weight:900;padding:2px 7px;border-radius:20px;margin-top:5px}
+/* chat */
+#chatSheet{height:80vh}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px}
+.msg{max-width:82%;align-self:flex-start;display:flex;flex-direction:column;gap:3px}
+.msg.mine{align-self:flex-end}
+.msg .by{font-size:.74rem;color:var(--mute);padding:0 6px}
+.msg .bub{background:var(--surf2);padding:10px 14px;border-radius:18px;line-height:1.55;word-wrap:break-word;white-space:pre-wrap}
+.msg.mine .bub{background:var(--paper);color:var(--ink)}
+.msg .tr{font-size:.78rem;color:var(--mute);padding:0 6px;display:flex;gap:10px}
+.msg .tr button{color:var(--medium);font-size:.78rem;text-decoration:underline;text-underline-offset:2px}
+.msg .orig{font-size:.8rem;opacity:.7;border-top:1px dashed rgba(127,100,140,.4);margin-top:6px;padding-top:5px}
+.msg.sys{align-self:center;font-size:.78rem;color:var(--mute);background:transparent}
+.chat-empty{margin:auto;color:var(--mute);text-align:center}
+.composer{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;min-height:52px;max-height:130px;resize:none;padding:14px 16px;border-radius:26px;background:var(--surf);border:1.5px solid var(--line);outline:none;line-height:1.4;font-size:1rem}
+.composer textarea:focus{border-color:var(--paper)}
+.sendb{width:52px;height:52px;border-radius:50%;background:var(--paper);color:var(--ink);font-size:1.25rem;flex-shrink:0;display:grid;place-items:center}
+.quick{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.quick button{padding:6px 12px;border-radius:20px;background:var(--surf);border:1px solid var(--line);font-size:1.05rem;flex-shrink:0}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--mute)}
+.sw{width:40px;height:24px;border-radius:12px;background:var(--surf2);position:relative;transition:.2s}
+.sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:50%;background:var(--mute);transition:.2s}
+.sw.on{background:var(--light)}
+.sw.on:after{inset-inline-start:19px;background:#fff}
 
-/* GAME */
-#gameScreen{padding:0;justify-content:flex-start}
-.g-header{width:100%;background:var(--card);border-bottom:1px solid var(--brd);padding:9px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.g-header .ri{flex:1;min-width:0}
-.room-tag{font-size:.64rem;color:var(--dim)}
-.room-n{font-size:.83rem;font-weight:700;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.turn-pill{padding:4px 11px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap;flex-shrink:0}
-.my-turn-pill{background:linear-gradient(135deg,var(--green),#00BCD4);color:#000}
-.other-turn-pill{background:linear-gradient(135deg,var(--surf2),var(--surf));color:var(--dim);border:1px solid var(--brd)}
-.header-icons{display:flex;gap:6px;flex-shrink:0}
-.icon-btn{width:32px;height:32px;border-radius:50%;background:var(--surf2);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;transition:.2s}
-.icon-btn:hover{background:var(--surf);border-color:var(--gold)}
+/* voice dock */
+.vdock{display:none;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-lg);background:var(--surf);border:1px solid var(--line)}
+.vdock.on{display:flex}
+#vdock{position:sticky;bottom:calc(-24px - var(--safe-b));z-index:5;margin:0 -6px;box-shadow:0 -10px 30px rgba(10,3,14,.55)}
+.ptt{width:66px;height:66px;border-radius:50%;background:var(--light);color:var(--ink);font-size:1.7rem;flex-shrink:0;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(63,211,166,.5);transition:transform .1s;touch-action:none;user-select:none;-webkit-user-select:none}
+.ptt.live{transform:scale(1.08);box-shadow:0 0 0 10px rgba(63,211,166,.25);background:#7DF0C8}
+.ptt.open{background:var(--hot);color:#fff}
+.vinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.vinfo .st{font-weight:700;font-size:.95rem}
+.vinfo .who{font-size:.8rem;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;background:var(--bg2);border-radius:20px;padding:3px;align-self:flex-start}
+.seg button{padding:5px 11px;border-radius:16px;font-size:.78rem;color:var(--mute)}
+.seg button.sel{background:var(--surf2);color:var(--txt);font-weight:700}
 
-.g-body{flex:1;width:100%;display:flex;flex-direction:column;overflow:hidden;min-height:0}
-
-/* SCORES */
-.scores-bar{display:flex;gap:7px;padding:7px 12px;overflow-x:auto;border-bottom:1px solid var(--brd);flex-shrink:0;scrollbar-width:none}
-.sc-chip{background:var(--surf2);border:1px solid var(--brd);border-radius:10px;padding:5px 9px;text-align:center;min-width:64px;flex-shrink:0;transition:.2s}
-.sc-chip.active-p{border-color:var(--gold);background:rgba(255,215,0,.07)}
-.sc-n{font-size:.62rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65px}
-.sc-v{font-size:1rem;font-weight:900;color:var(--gold)}
-.sc-turn{font-size:.55rem;color:var(--green);font-weight:700}
-
-/* CARD AREA */
-.card-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;min-height:0;overflow:hidden}
-.lvl-pill{padding:4px 16px;border-radius:30px;font-size:.73rem;font-weight:700;margin-bottom:12px;letter-spacing:1px;flex-shrink:0}
-.lp1{background:rgba(0,230,118,.1);color:var(--lv1);border:1px solid rgba(0,230,118,.3)}
-.lp2{background:rgba(68,138,255,.1);color:var(--lv2);border:1px solid rgba(68,138,255,.3)}
-.lp3{background:rgba(255,64,129,.1);color:var(--lv3);border:1px solid rgba(255,64,129,.3)}
-.lp4{background:rgba(213,0,249,.1);color:var(--lv4);border:1px solid rgba(213,0,249,.3)}
-
-.the-card{width:100%;max-width:340px;min-height:185px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 20px;text-align:center;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.55);transition:transform .15s}
-.the-card.flip{animation:flip .45s ease}
-@keyframes flip{0%{transform:rotateY(90deg) scale(.85);opacity:0}100%{transform:rotateY(0) scale(1);opacity:1}}
-.card-ico{font-size:1.9rem;margin-bottom:10px}
-.card-q{font-size:1.08rem;font-weight:700;line-height:1.65;user-select:text}
-.card-num{position:absolute;top:11px;right:14px;font-size:.7rem;opacity:.4}
-.cb1{background:linear-gradient(135deg,#0A2618,#0A3520);border:1px solid rgba(0,230,118,.25);color:#A0FFD0}
-.cb2{background:linear-gradient(135deg,#0A1830,#0A1E42);border:1px solid rgba(68,138,255,.25);color:#A0C4FF}
-.cb3{background:linear-gradient(135deg,#35081C,#420A26);border:1px solid rgba(255,64,129,.25);color:#FFA0C4}
-.cb4{background:linear-gradient(135deg,#1C0835,#250A44);border:1px solid rgba(213,0,249,.25);color:#DDA0FF}
-
-/* BLOCKED CARD - when not your turn */
-.card-locked{cursor:not-allowed;opacity:.75;position:relative}
-.card-locked::after{content:'🔒';position:absolute;top:10px;left:14px;font-size:1.2rem;opacity:.6}
-
-.card-actions{display:flex;gap:10px;margin-top:14px;flex-shrink:0;flex-wrap:wrap;justify-content:center}
-.card-actions .btn{width:auto;padding:9px 20px;font-size:.82rem}
-
-/* WHO'S TURN */
-.who-row{display:flex;gap:7px;padding:8px 12px;overflow-x:auto;border-top:1px solid var(--brd);flex-shrink:0;scrollbar-width:none}
-.who-chip{display:flex;align-items:center;gap:6px;background:var(--surf2);border:1px solid var(--brd);border-radius:30px;padding:5px 11px;white-space:nowrap;font-size:.8rem}
-.who-chip.active-turn{border-color:var(--gold);background:rgba(255,215,0,.08);color:var(--gold);animation:turnPulse 2s ease infinite}
-@keyframes turnPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.3)}50%{box-shadow:0 0 0 4px rgba(255,215,0,0)}}
-.who-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:900;background:var(--surf);flex-shrink:0}
-
-/* CHAT PANEL */
-.chat-panel{width:100%;background:var(--card);border-top:1px solid var(--brd);display:flex;flex-direction:column;transition:height .3s ease;overflow:hidden;flex-shrink:0}
-.chat-panel.collapsed{height:40px}
-.chat-panel.expanded{height:240px}
-.chat-header{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);cursor:pointer;flex-shrink:0}
-.chat-title{font-size:.8rem;font-weight:700;color:var(--dim);display:flex;align-items:center;gap:6px}
-.chat-badge{background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:.6rem;display:flex;align-items:center;justify-content:center;font-weight:900}
-.chat-msgs{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:5px;scrollbar-width:thin}
-.msg{max-width:78%}
-.msg.me{align-self:flex-end}
-.msg.them{align-self:flex-start}
-.msg.sys{align-self:center;max-width:90%}
-.bubble{padding:7px 12px;border-radius:16px;font-size:.82rem;line-height:1.45;word-break:break-word}
-.msg.me .bubble{background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;border-radius:16px 16px 4px 16px}
-.msg.them .bubble{background:var(--surf2);color:var(--txt);border-radius:16px 16px 16px 4px}
-.msg.sys .bubble{background:rgba(255,215,0,.07);color:var(--gold);font-size:.73rem;border-radius:10px;text-align:center;border:1px solid rgba(255,215,0,.15)}
-.msg-sender{font-size:.65rem;color:var(--dim);margin-bottom:2px}
-.chat-input-row{display:flex;gap:7px;padding:7px 10px;flex-shrink:0;border-top:1px solid var(--brd)}
-.chat-inp{flex:1;background:var(--surf2);border:1px solid var(--brd);border-radius:20px;padding:7px 13px;color:var(--txt);font-family:'Cairo',sans-serif;font-size:.82rem;outline:none;transition:.3s}
-.chat-inp:focus{border-color:var(--gold)}
-.ci-btn{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:.2s;flex-shrink:0}
-.ci-btn.send{background:var(--gold);color:#000}
-
-/* TOAST */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--surf);border:1px solid var(--brd);border-radius:30px;padding:9px 22px;font-size:.82rem;font-weight:600;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* DIVIDER */
-.divider{height:1px;background:var(--brd);margin:14px 0}
-.section-title{font-size:.78rem;color:var(--dim);font-weight:600;margin-bottom:8px}
-
-/* SOCIAL GRID */
-.social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
-.social-item{background:var(--surf2);border:1px solid var(--brd);border-radius:14px;padding:10px 6px;cursor:pointer;transition:all .25s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
-.social-item:hover{border-color:var(--gold);transform:translateY(-2px)}
-.social-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin:0 auto}
-.social-lbl{font-size:.72rem;font-weight:700;color:var(--txt)}
-.social-val{font-size:.65rem;color:var(--green);word-break:break-all;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* SOCIAL CARD in lobby/game */
-.contact-card{background:var(--surf2);border:1px solid var(--brd);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.2s}
-.contact-card:hover{border-color:var(--gold)}
-.contact-platform{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.contact-info{flex:1;min-width:0}
-.contact-name{font-size:.8rem;font-weight:700}
-.contact-handle{font-size:.72rem;color:var(--green)}
-.open-btn{font-size:.7rem;background:var(--gold);color:#000;border:none;border-radius:20px;padding:4px 10px;cursor:pointer;font-weight:700;font-family:'Cairo',sans-serif;white-space:nowrap}
-
-/* FADE */
-@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeInUp .35s ease}
-
-/* OVERLAY */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:95;opacity:0;pointer-events:none;transition:.3s}
-.overlay.on{opacity:1;pointer-events:all}
-
-/* WAITING ANIM */
-.waiting-dots span{animation:blink 1.4s infinite}
-.waiting-dots span:nth-child(2){animation-delay:.2s}
-.waiting-dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-
-/* TURN OVERLAY */
-.turn-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.85);animation:fadeInUp .3s ease}
-.turn-overlay.off{display:none}
-.turn-box{background:var(--card);border:2px solid var(--gold);border-radius:24px;padding:30px 24px;text-align:center;max-width:320px;width:90%}
-.turn-emoji{font-size:4rem;display:block;margin-bottom:12px}
-.turn-name{font-size:1.4rem;font-weight:900;color:var(--gold)}
-.turn-sub{font-size:.85rem;color:var(--dim);margin-top:6px}
-
-/* ADD Q */
-.addq-panel{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid rgba(255,215,0,.3);border-radius:22px 22px 0 0;z-index:100;transform:translateY(100%);transition:transform .35s ease;padding:20px;max-height:70vh;overflow-y:auto}
-.addq-panel.open{transform:translateY(0)}
-
-/* LEVEL SELECTION DURING GAME (host only) */
-.overlay-panel{position:fixed;inset:0;z-index:150;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.7)}
-.overlay-panel.off{display:none}
-.overlay-inner{background:var(--card);border-radius:22px 22px 0 0;padding:20px;width:100%;max-width:500px;max-height:75vh;overflow-y:auto}
+.toast{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-160%);z-index:90;background:var(--paper);color:var(--ink);padding:11px 18px;border-radius:30px;font-weight:600;font-size:.92rem;transition:transform .3s;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.toast.on{transform:translate(-50%,0)}
+.spin{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--paper);border-radius:50%;animation:sp 1s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (min-height:760px){.stage{min-height:360px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div id="pts"></div>
-<button id="langBtn" onclick="toggleLang()">EN</button>
+<!-- HOME -->
+<section class="screen on" id="home"><div class="wrap">
+  <div class="langs" id="langs"></div>
+  <div class="hero">
+    <div class="fan" aria-hidden="true"><i></i><i></i><i></i><i>?</i></div>
+    <h1 class="logo" data-t="name"></h1>
+    <p class="tag" data-t="tagline"></p>
+  </div>
+  <button class="choice primary" data-go="setup"><span class="em" style="background:var(--light)">📱</span><span><b data-t="local"></b><small data-t="localSub"></small></span></button>
+  <button class="choice" data-go="online"><span class="em" style="background:var(--hot)">🌍</span><span><b data-t="online"></b><small data-t="onlineSub"></small></span></button>
+  <button class="linkbtn" data-act="rules" data-t="rules"></button>
+</div></section>
+
+<!-- LOCAL SETUP -->
+<section class="screen" id="setup"><div class="wrap">
+  <div class="bar"><button class="icon" data-go="home" aria-label="back"><span class="flip">←</span></button><h2 data-t="players"></h2><span style="width:44px"></span></div>
+  <div class="plist" id="localList"></div>
+  <button class="btn" data-act="addLocal">＋ <span data-t="addPlayer"></span></button>
+  <div style="flex:1"></div>
+  <p class="hint" id="setupHint"></p>
+  <button class="btn main" data-act="localStart" data-t="start"></button>
+</div></section>
+
+<!-- ONLINE ENTRY -->
+<section class="screen" id="online"><div class="wrap">
+  <div class="bar"><button class="icon" data-go="home" aria-label="back"><span class="flip">←</span></button><h2 data-t="online"></h2><span style="width:44px"></span></div>
+  <label class="lbl" for="myName" data-t="yourName"></label>
+  <input class="inp" id="myName" maxlength="18" autocomplete="nickname">
+  <button class="btn main" data-act="create" data-t="create"></button>
+  <div class="sep" data-t="or"></div>
+  <input class="inp code-inp" id="codeIn" maxlength="5" autocomplete="off" autocapitalize="characters">
+  <button class="btn" data-act="join" data-t="join"></button>
+  <p class="hint" data-t="online_hint"></p>
+</div></section>
+
+<!-- LOBBY -->
+<section class="screen" id="lobby"><div class="wrap">
+  <div class="bar"><button class="icon" data-act="leave" aria-label="leave"><span class="flip">←</span></button><h2 data-t="waiting"></h2><button class="icon" data-act="chat" aria-label="chat">💬<span class="badge" hidden></span></button></div>
+  <div class="code-card"><div class="lbl" style="color:#7B5A80" data-t="roomCode"></div><div class="big" id="lobbyCode">-----</div></div>
+  <button class="btn" data-act="share">🔗 <span data-t="share"></span></button>
+  <div class="plist" id="lobbyList"></div>
+  <div style="flex:1"></div>
+  <div class="vdock" id="vdockLobby"></div>
+  <button class="btn" data-act="voice" id="voiceBtnLobby">🎙 <span data-t="joinVoice"></span></button>
+  <button class="btn main" data-act="lobbyStart" id="lobbyStart" data-t="startGame"></button>
+  <p class="hint" id="lobbyHint"></p>
+</div></section>
+
+<!-- CATEGORIES -->
+<section class="screen" id="cats"><div class="wrap">
+  <div class="bar"><button class="icon" data-act="catsBack" aria-label="back"><span class="flip">←</span></button><h2 data-t="chooseCat"></h2><span style="width:44px"></span></div>
+  <div class="cats" id="catGrid"></div>
+  <div style="flex:1"></div>
+  <button class="btn" data-act="openAddQ">＋ <span data-t="addQ"></span></button>
+</div></section>
+
+<!-- GAME -->
+<section class="screen" id="game"><div class="wrap" style="gap:12px">
+  <div class="bar">
+    <button class="icon" data-act="leave" aria-label="leave">✕</button>
+    <button class="catchip" data-act="changeCat"><i></i><span id="catName"></span><small style="color:var(--mute)">▾</small></button>
+    <button class="icon olonly" data-act="voice" id="voiceIcon" aria-label="voice">🎙</button>
+    <button class="icon olonly" data-act="chat" aria-label="chat">💬<span class="badge" hidden></span></button>
+    <button class="icon" data-act="scores" aria-label="scores">🏆</button>
+  </div>
+  <div class="scores" id="scores"></div>
+  <div class="turn" id="turn"><div class="who"></div><div class="sub"></div></div>
+  <div class="stage"><div class="stack"><div class="card" id="card"></div></div></div>
+  <div class="nav" id="nav"></div>
+  <div id="controls"></div>
+  <div class="vdock" id="vdock"></div>
+</div></section>
+</div>
+
+<!-- CHAT SHEET -->
+<div class="veil" id="veil" data-act="closeSheets"></div>
+<div class="sheet" id="chatSheet" role="dialog">
+  <div class="grab"></div>
+  <h3><span data-t="chat"></span><button class="toggle" data-act="autoTr"><span data-t="autoTr"></span><i class="sw" id="trSw"></i></button><button class="icon" data-act="closeSheets" style="width:36px;height:36px">✕</button></h3>
+  <div class="msgs" id="msgs"></div>
+  <div class="quick" id="quick"></div>
+  <div class="composer"><textarea id="chatIn" rows="1"></textarea><button class="sendb" data-act="send" aria-label="send"><span class="flip">➤</span></button></div>
+</div>
+<div class="sheet" id="catSheet" role="dialog"><div class="grab"></div><h3><span data-t="changeCat"></span></h3><div class="cats" id="catGrid2"></div></div>
+<div class="sheet" id="scoreSheet" role="dialog"><div class="grab"></div><h3><span data-t="scores"></span></h3><div class="plist" id="scoreList"></div>
+  <div class="row"><button class="btn" data-act="reset" data-t="playAgain"></button><button class="btn main" data-act="leave" data-t="endGame"></button></div></div>
+<div class="sheet" id="addSheet" role="dialog"><div class="grab"></div><h3><span data-t="addQ"></span></h3>
+  <div class="cats" id="addCats" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="row" id="addType"></div>
+  <textarea class="inp" id="addText" rows="3" style="padding:14px;min-height:96px;resize:none"></textarea>
+  <button class="btn main" data-act="saveQ" data-t="save"></button></div>
+
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
-<div class="overlay" id="overlay" onclick="closeAllPanels()"></div>
 
-<!-- TURN OVERLAY -->
-<div class="turn-overlay off" id="turnOverlay">
-  <div class="turn-box">
-    <span class="turn-emoji" id="turnEmoji">🎯</span>
-    <div class="turn-name" id="turnName">اسم اللاعب</div>
-    <div class="turn-sub" id="turnSub">دورك! اقرأ السؤال وأجب</div>
-    <button class="btn gold" style="margin-top:16px" onclick="dismissTurnOverlay()" id="turnOkBtn">حسناً ✓</button>
-  </div>
-</div>
-
-<!-- ════════════ HOME SCREEN ════════════ -->
-<div class="screen" id="homeScreen">
-  <div class="logo" id="logoText">🔥 جرأة وتحدي</div>
-  <p class="sub" id="subText">العب مع من تحب</p>
-  <div style="height:24px"></div>
-  <div class="panel">
-    <div class="field">
-      <label class="lbl" id="lbl_name">اسمك في اللعبة</label>
-      <input class="inp" id="playerName" placeholder="أدخل اسمك..." maxlength="20">
-    </div>
-    <div class="mode-grid">
-      <div class="mode-card sel" onclick="selectMode('create')" id="modeCreate">
-        <span class="mode-icon">🎮</span>
-        <div class="mode-lbl" id="lbl_create">إنشاء غرفة</div>
-        <div class="mode-desc" id="lbl_create_d">العب مع أصدقائك</div>
-      </div>
-      <div class="mode-card" onclick="selectMode('join')" id="modeJoin">
-        <span class="mode-icon">🚪</span>
-        <div class="mode-lbl" id="lbl_join">الانضمام</div>
-        <div class="mode-desc" id="lbl_join_d">ادخل كود الغرفة</div>
-      </div>
-    </div>
-    <div id="joinCodeField" style="display:none;margin-bottom:12px">
-      <label class="lbl" id="lbl_roomcode">كود الغرفة</label>
-      <input class="inp" id="joinCode" placeholder="أدخل الكود..." maxlength="6" style="text-transform:uppercase;letter-spacing:4px;text-align:center;font-size:1.3rem">
-    </div>
-    <button class="btn gold" onclick="startAction()" id="startBtn">إنشاء غرفة 🎮</button>
-    <button class="btn ghost" onclick="goSolo()" id="soloBtn" style="margin-top:10px">لعب منفرد 👤</button>
-    <div class="divider"></div>
-    <div class="section-title" id="lbl_social_title">روابط التواصل (اختياري)</div>
-    <div class="social-grid">
-      <div class="social-item" onclick="toggleSocialInput('whatsapp')">
-        <span class="social-icon" style="background:linear-gradient(135deg,#25D366,#128C7E)">📱</span>
-        <span class="social-lbl" id="lbl_wa">واتساب</span>
-        <span class="social-val" id="val_wa">—</span>
-      </div>
-      <div class="social-item" onclick="toggleSocialInput('telegram')">
-        <span class="social-icon" style="background:linear-gradient(135deg,#2AABEE,#229ED9)">✈️</span>
-        <span class="social-lbl" id="lbl_tg">تلجرام</span>
-        <span class="social-val" id="val_tg">—</span>
-      </div>
-      <div class="social-item" onclick="toggleSocialInput('discord')">
-        <span class="social-icon" style="background:linear-gradient(135deg,#5865F2,#7289DA)">🎮</span>
-        <span class="social-lbl" id="lbl_dc">ديسكورد</span>
-        <span class="social-val" id="val_dc">—</span>
-      </div>
-    </div>
-    <div id="social_input_whatsapp" style="display:none;margin-top:10px">
-      <label class="lbl" id="lbl_wa_input">رقم الواتساب (مع كود الدولة)</label>
-      <div style="display:flex;gap:8px;margin-top:5px">
-        <input class="inp" id="inp_wa" placeholder="+966501234567" maxlength="20" style="flex:1">
-        <button class="btn gold sm" onclick="saveSocial('whatsapp')" id="lbl_save_wa">حفظ</button>
-      </div>
-    </div>
-    <div id="social_input_telegram" style="display:none;margin-top:10px">
-      <label class="lbl" id="lbl_tg_input">يوزر تلجرام</label>
-      <div style="display:flex;gap:8px;margin-top:5px">
-        <input class="inp" id="inp_tg" placeholder="@username" maxlength="32" style="flex:1">
-        <button class="btn gold sm" onclick="saveSocial('telegram')" id="lbl_save_tg">حفظ</button>
-      </div>
-    </div>
-    <div id="social_input_discord" style="display:none;margin-top:10px">
-      <label class="lbl" id="lbl_dc_input">يوزر ديسكورد</label>
-      <div style="display:flex;gap:8px;margin-top:5px">
-        <input class="inp" id="inp_dc" placeholder="username#0000" maxlength="37" style="flex:1">
-        <button class="btn gold sm" onclick="saveSocial('discord')" id="lbl_save_dc">حفظ</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════ LOBBY SCREEN ════════════ -->
-<div class="screen off" id="lobbyScreen">
-  <div class="panel fade-in">
-    <div style="text-align:center;margin-bottom:6px">
-      <div style="font-size:1.1rem;font-weight:900" id="lbl_waiting">في انتظار اللاعبين<span class="waiting-dots"><span>.</span><span>.</span><span>.</span></span></div>
-      <div style="font-size:.75rem;color:var(--dim);margin-top:3px" id="lbl_share_code">شارك الكود مع أصدقائك</div>
-    </div>
-    <div class="code-box" onclick="copyCode()">
-      <div class="code-big" id="displayCode">------</div>
-      <div class="code-tip" id="lbl_tap_copy">اضغط للنسخ 📋</div>
-    </div>
-    <div class="section-title" id="lbl_players">اللاعبون</div>
-    <div class="players-list" id="playersList"></div>
-    <div class="divider"></div>
-    <div class="section-title" id="lbl_contacts_title">تواصل مع اللاعبين 📲</div>
-    <div id="contactsList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px"></div>
-    <button class="btn gold" onclick="goToLevels()" id="lbl_start_game">ابدأ اللعبة 🚀</button>
-    <button class="btn ghost" onclick="leaveRoom()" id="lbl_leave" style="margin-top:10px">← مغادرة / رجوع</button>
-  </div>
-</div>
-
-<!-- ════════════ LEVEL SCREEN ════════════ -->
-<div class="screen off" id="levelScreen">
-  <div style="text-align:center;margin-bottom:4px">
-    <div class="logo" style="font-size:2rem" id="lbl_choose_level">اختر المستوى</div>
-    <div class="sub" id="lbl_choose_sub">كل مستوى أجرأ من السابق</div>
-  </div>
-  <div class="lvl-grid">
-    <div class="lvl-card lv1" onclick="selectLevel(0)">
-      <span class="lvl-icon">😊</span>
-      <div class="lvl-name" id="lv1_name">تعارفي</div>
-      <div class="lvl-cnt" id="lv1_cnt">49 سؤال</div>
-    </div>
-    <div class="lvl-card lv2" onclick="selectLevel(1)">
-      <span class="lvl-icon">💙</span>
-      <div class="lvl-name" id="lv2_name">عميق</div>
-      <div class="lvl-cnt" id="lv2_cnt">50 سؤال</div>
-    </div>
-    <div class="lvl-card lv3" onclick="selectLevel(2)">
-      <span class="lvl-icon">🔥</span>
-      <div class="lvl-name" id="lv3_name">محرج</div>
-      <div class="lvl-cnt" id="lv3_cnt">57 سؤال</div>
-    </div>
-    <div class="lvl-card lv4" onclick="selectLevel(3)">
-      <span class="lvl-icon">🔞</span>
-      <div class="lvl-name" id="lv4_name">بالغين</div>
-      <div class="lvl-cnt" id="lv4_cnt">45 سؤال</div>
-      <div class="age-tag">+18</div>
-    </div>
-  </div>
-  <div style="width:100%;max-width:430px">
-    <button class="btn ghost" onclick="goBackFromLevel()" id="lbl_back_lobby">← رجوع</button>
-  </div>
-</div>
-
-<!-- ════════════ GAME SCREEN ════════════ -->
-<div class="screen off" id="gameScreen">
-  <div class="g-header">
-    <div class="ri">
-      <div class="room-tag" id="lbl_room_tag">غرفة اللعب</div>
-      <div class="room-n" id="gameRoomName">---</div>
-    </div>
-    <div class="turn-pill other-turn-pill" id="turnPill">...</div>
-    <div class="header-icons">
-      <div class="icon-btn" onclick="openContactsPanel()" title="تواصل">📲</div>
-      <div class="icon-btn" onclick="goToLevels()" title="مستوى">🎯</div>
-      <div class="icon-btn" onclick="confirmLeaveGame()" title="خروج">🚪</div>
-    </div>
-  </div>
-  <div class="g-body">
-    <div class="scores-bar" id="scoresBar"></div>
-    <div class="card-area">
-      <div class="lvl-pill lp1" id="currentLvlPill">تعارفي 😊</div>
-      <div class="the-card cb1" id="theCard">
-        <div class="card-ico" id="cardIco">🎴</div>
-        <div class="card-q" id="cardQuestion" style="color:var(--dim);font-size:.9rem">في انتظار بدء اللعبة...</div>
-        <div class="card-num" id="cardNum">#0</div>
-      </div>
-      <div class="card-actions" id="cardActions">
-        <button class="btn gold sm" onclick="nextCard()" id="lbl_next_card">التالي ▶</button>
-        <button class="btn ghost sm" onclick="markAnswered()" id="lbl_answered">أجبت ✓</button>
-        <button class="btn ghost sm" onclick="openAddQ()" id="lbl_add_sm">➕</button>
-      </div>
-    </div>
-    <div class="who-row" id="whoRow"></div>
-    <!-- CHAT -->
-    <div class="chat-panel collapsed" id="chatPanel">
-      <div class="chat-header" onclick="toggleChat()">
-        <div class="chat-title">
-          💬 <span id="lbl_chat">الشات</span>
-          <div class="chat-badge" id="chatBadge" style="display:none">0</div>
-        </div>
-        <span id="chatArrow" style="color:var(--dim);font-size:.8rem">▲</span>
-      </div>
-      <div class="chat-msgs" id="chatMsgs"></div>
-      <div class="chat-input-row">
-        <input class="chat-inp" id="chatInp" placeholder="اكتب رسالة..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="ci-btn send" onclick="sendChat()">➤</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CONTACTS PANEL -->
-<div class="addq-panel" id="contactsPanel">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div style="font-size:1rem;font-weight:900;color:var(--blue)">📲 تواصل مع اللاعبين</div>
-    <button class="btn ghost sm" onclick="closeAllPanels()">✕</button>
-  </div>
-  <div id="contactsListGame" style="display:flex;flex-direction:column;gap:8px"></div>
-</div>
-
-<!-- ADD Q PANEL -->
-<div class="addq-panel" id="addqPanel">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div style="font-size:1rem;font-weight:900;color:var(--gold)">➕ إضافة سؤال خاص</div>
-    <button class="btn ghost sm" onclick="closeAllPanels()">✕</button>
-  </div>
-  <div class="field">
-    <label class="lbl" id="lbl_q_level">المستوى</label>
-    <select class="inp" id="addqLevel" style="cursor:pointer">
-      <option value="0">😊 تعارفي</option>
-      <option value="1">💙 عميق</option>
-      <option value="2">🔥 محرج</option>
-      <option value="3">🔞 بالغين</option>
-    </select>
-  </div>
-  <div class="field" style="margin-top:10px">
-    <label class="lbl" id="lbl_q_text">السؤال</label>
-    <textarea class="inp" id="addqText" rows="3" placeholder="اكتب سؤالك هنا..." style="resize:none;line-height:1.6"></textarea>
-  </div>
-  <button class="btn gold" style="margin-top:10px" onclick="addCustomQ()" id="lbl_add_q_btn">إضافة السؤال ✓</button>
-  <div class="divider"></div>
-  <div class="section-title" id="lbl_custom_qs">أسئلتك المضافة</div>
-  <div id="customQList" style="display:flex;flex-direction:column;gap:7px;max-height:180px;overflow-y:auto"></div>
-</div>
-
+<script src="i18n.js"></script>
+<script src="q_light.js"></script><script src="q_medium.js"></script><script src="q_spicy.js"></script><script src="q_hot.js"></script>
+<script src="peerjs.min.js"></script>
 <script>
-// ══════════════════════════════════════════
-// FIREBASE CONFIG
-// ══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyA85NtKEzeIgu5ugshioahOstTZLD5vLeI",
-  authDomain: "dare-game-e9560.firebaseapp.com",
-  databaseURL: "https://dare-game-e9560-default-rtdb.firebaseio.com",
-  projectId: "dare-game-e9560",
-  storageBucket: "dare-game-e9560.firebasestorage.app",
-  messagingSenderId: "998354183670",
-  appId: "1:998354183670:web:3f2d7acb463a552c5013d7"
-};
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const CATS=['light','medium','spicy','hot'], EMO={light:'😄',medium:'💭',spicy:'🙈',hot:'🔥'};
+const AVC=['#3FD3A6','#FFB547','#FF7A55','#F0306F','#8FB8FF','#C79BFF','#FFE16B','#7FE0E0'];
+const store={get(k,d){try{const v=localStorage.getItem('dare_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('dare_'+k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// ══════════════════════════════════════════
-// QUESTIONS DATABASE - Your Custom Questions
-// ══════════════════════════════════════════
-const QUESTIONS_AR = [
-  // LEVEL 0 - تعارفي (49)
-  [
-    "أول انطباع عادة الناس بتاخذه عنك؟",
-    "أكثر أكلة ممكن تاكلها كل يوم؟",
-    "إذا عندك تذكرة سفر مجانية، لوين بتروح؟",
-    "شو أغرب عادة عنك؟",
-    "أكثر تطبيق بتفتحه كل يوم؟",
-    "اذا حياتك فلم شو ممكن اتسمي؟",
-    "بتحب الحياة صباحية ولا مسائية؟",
-    "اكثر اشي بضحكك بسرعة؟",
-    "لو تربح مليون شو اول اشي راح تسوي؟",
-    "شو اكثر اشي بخليك تعصب بسرعة؟",
-    "شو اكثر موسم بتحبو؟",
-    "شو اغرب حلم حلمتو؟",
-    "اذا حاب تتعلم مهارة جديدة شو بتحب تكون؟",
-    "شو اكثر غنية علقت في راسك؟",
-    "مين اكثر شخص بتحس انو بشبهك؟",
-    "اذا عندك قوة خارق شو بتحب تكون؟",
-    "اكثر موقف محرج صار معك؟",
-    "هل انتا شخص اجتماعي ولا انطوائي؟",
-    "اكثر اشي ممكن انو يحمسك في الحياة؟",
-    "لو بتختفي يوم كامل شو ممكن انك تعمل؟",
-    "شو الاشي الي دايماً بتأجله؟",
-    "اكثر انجاز بتفتخر في؟",
-    "لو بتقدر ترجع في زمن شو ممكن انك تغير؟",
-    "متى اخر مرة ساعدة فيها حدة؟",
-    "لو كنت معصب شو اكثر اشي ممكن انو يهديك؟",
-    "اكثر اشي بتحبو في نفسك؟",
-    "اكثر اشي بتحب تعملو مع صحابك؟",
-    "شو اكثر بلد حاب انك تعيش فيها غير بلدك؟",
-    "شو الروتين الي مستحيل انك تشيلو من حياتك؟",
-    "وين اكثر مكان بترتاح في، في بلدك؟",
-    "اكثر اشي بتحب تعملو لحالك؟",
-    "لو كنت حيوان شو بتتمنى انك تكون؟",
-    "شو اكثر لون بعبر عن شخصيتك؟",
-    "شو الاشي الي ما بتقدر اتعيش من دونه؟",
-    "هل بتعتبر حالك شخص فضولي؟",
-    "مين اكثر واحد بعرفك اكثر من الكل؟",
-    "شو اكثر اشي بضيع منك دايماً؟",
-    "لو بتقدر اتبدل حياتك مع مشهور مين ممكن يكون؟",
-    "شو الطبيعة الي بتفضلها (جبال، صحاري، غابات، بحار)؟",
-    "شو اكثر اشي بخليك تنحرج؟",
-    "شو اكثر اشي بزعجك في المحادثة؟",
-    "هل بتفضل تعيش في المدن ولا القرى؟",
-    "شو اول اشي بتسوي لما اصحى؟",
-    "هل انت بتحب المفاجآت؟",
-    "لو عندك اسم ثاني شو بتفضل يكون؟",
-    "هل انت تحب التخطيط ولا العشوائية؟",
-    "شو اكثر كلمة بتقولها كثير؟",
-    "شو اكثر اشي ممكن انك تصرف عليه فلوس؟",
-    "لو بدك توصف نفسك في 3 كلمات شو ممكن تقول؟"
-  ],
-  // LEVEL 1 - عميق (50)
-  [
-    "شو اكثر اشي غيرك فيك اخر سنتين؟",
-    "هل تؤمن ان الناس بتتغير فعلاً؟",
-    "شو اكبر خوف داخلي عندك؟",
-    "متى اخر مرة بكيت، وليش؟",
-    "هل بتسامح بسهولة؟",
-    "شو تعريفك لراحة النفسية؟",
-    "شو الاشي الي مستحيل تتنازل عنو؟",
-    "هل الوحدة مريحة الك؟",
-    "اكثر قرار ندمت عليه؟",
-    "هل تثق بسرعة؟",
-    "شو اكثر صفة بتحبها في نفسك؟",
-    "شو اكثر صفة بتحاول تخفيها؟",
-    "هل بتهتم في رأي الناس؟",
-    "متى بتحس انك ضعيف؟",
-    "شو الاشي الي نفسك تسمعو من شخص؟",
-    "مين اكثر واحد اثر في حياتك؟",
-    "هل بتحس الحب اختيار ولا شعور؟",
-    "شو مفهومك للنجاح؟",
-    "هل تؤمن في الحب؟",
-    "هل بتعطي فرصة ثانية في العلاقة؟",
-    "شو اصعب وداع مريت فيه؟",
-    "هل بتعتبر حالك صادق؟",
-    "شو اكثر اشي بتتمنى الناس تفهمو عنك؟",
-    "شو اكثر سؤال نفسك تسئلوا لنفسك بصدق؟",
-    "هل بتعتقد انك بتعرف نفسك جيداً؟",
-    "شو اصعب حقيقة اقتنعت فيها؟",
-    "هل تؤمن ان الوقت يغير كل شيء؟",
-    "شو الاشي الي بسرق طاقتك من دون ما تحس؟",
-    "شو تعريفك للشخص الناضج؟",
-    "من بتحكم فيك دايماً عقلك ولا قلبك؟",
-    "شو اكثر اشي بوجعك وما بتحكي في؟",
-    "هل الخوف مرات بمنعك من اشياء نفسك انك تعملها؟",
-    "هل بتحس انك شخص صعب؟",
-    "لو خسرت كل اشي شو اكثر اشي بتتمنى انو يضل؟",
-    "شو الاشي الي بعطي لحياتك معنى؟",
-    "هل انتا قاسي على نفسك؟",
-    "شو اكثر شعور صعب مر عليك؟",
-    "شو اكثر اشي ندمت انك ما قلتو؟",
-    "هل بتتعلق بسرعة في الناس؟",
-    "هل برأيك الصراحة دايماً صح؟",
-    "هل بتخاف من المستقبل؟",
-    "هل تؤمن انو كل اشي بصير لسبب؟",
-    "هل بتحس انك بتعطي اكثر من ما بتوخد؟",
-    "هل بتعتبر نفسك شخص حساس؟",
-    "شو اصعب اختيار مر عليك بحياتك؟",
-    "هل بتعبر تفسك شخص غيور؟",
-    "لو كنت زعلان هل بتحكي مع حدة؟",
-    "هل تبكي كثيراً؟",
-    "هل بتحكم على الناس من اول لقاء؟",
-    "شو اكثر دعاء بتدعيه لنفسك؟"
-  ],
-  // LEVEL 2 - محرج (57)
-  [
-    "هل سبق احد رفضك؟",
-    "اكبر كذبة حكيتها وصدقوها؟",
-    "عمرك ارسلت رسالة بالغلط؟",
-    "مين اخر شخص غرت منو؟",
-    "اكثر اشي طفولي لسا بتعملو؟",
-    "ممكن اشوف اكثر صورة الك محرجة على هاتفك؟",
-    "مين اخر شخص عملتلو بلوك؟",
-    "اكثر موقف غرت منو؟",
-    "شو اكثر عادة غريبة عندك؟",
-    "اذا فتشنا تليفونك شو اكثر اشي محرج ممكن يكون في؟",
-    "هل بتحكي على الناس من وراهم؟",
-    "اكثر موقف خذلك؟",
-    "هل عمرك انحرجت من شخص بتحبو؟",
-    "شو اكثر ردت فعل عملتها وانتا معصب؟",
-    "مين اخر شخص حلمت فيه؟",
-    "هل عندك حدة مرتبط في حالياً؟",
-    "مين اكثر شخص بتفكر في؟",
-    "شو اكثر اشي ممكن يخليك تغار؟",
-    "مين اكثر شخص بلفت انتباهك بسرعة؟",
-    "هل عمرك تظاهرت انك ما بتهتم وانتا بتهتم جداً؟",
-    "شو اكثر اشي بتعتبره بجذبك بشخص؟",
-    "شو اكثر اشي بضعفك في الشخص؟",
-    "شو اكثر موقف توترت في بسبب شخص؟",
-    "اذا بدك رسالة (اشتقتلك) لمين ممكن تبعتها؟",
-    "شو اكثر اشي بخليك تفقد اهتمامك؟",
-    "مين الشخص الي ما بتتوقع انك تنسى؟",
-    "هل عمرك حبيت شخص وهو ما بعرف؟",
-    "اذا شخص عجبك كيف ممكن تخلي ينتبه؟",
-    "مين اكثر شخص غرت عليه؟",
-    "شو اكثر موقف حسيت قلبك بدق بسرعة؟",
-    "اذا لازم تحذف شخص من حياتك مين ممكن يكون؟",
-    "شو اكثر اشي مستحيل تتحملو في العلاقة؟",
-    "شو اكثر اشي بجذبك الشكل ولا الشخص؟",
-    "هل عمرك كسرت قلب حده؟",
-    "هل بتحب السيطرة ولا الاهتمام؟",
-    "اذا عندك فرصة تبعت رسالة لشخص بتحبو شو ممكن تكون الرسالة؟",
-    "هل عمرك تمنيت ترجع تحكي مع شخص انتهت علاقتك في؟",
-    "شو اكثر كلام بخليك تثور 🔥؟",
-    "اذا الان حدة اعترفلك بحبو الك شو اول سؤال ممكن انك تسألو؟",
-    "بنظرك شو اكثر اشي بدل على الاهتمام؟",
-    "هل عمرك تعمدت تتجاهل شخص عشان تحس في الاهتمام؟",
-    "هل ممكن تحب شخص لمجرد طريقة تفكيره؟",
-    "شو اكبر سر احتفظت في بعبر عن مشاعرك؟",
-    "اذا حدة وصفك في كلمة في العلاقة شو بتتوقع انها تكون؟",
-    "شو اكثر تصرف ممكن يخليك تفكر في الشخص طول اليوم؟",
-    "شو اكثر اشي بحرجك في العلاقة؟",
-    "هل بتحب الشخص الغامض ولا المباشر؟",
-    "هل عمرك ندمت انك صارحت شخص؟",
-    "حسب رأيك شو اكثر اشي بخليك تحس انو شخص مهتم؟",
-    "هل عندك شخص اذا وصلت منو رسالة بتترك كل اشي وبترد عليه؟",
-    "اذا خيروك بين الاهتمام والغيرة شو بتختار؟",
-    "شو اكثر موقف تمنيت يوقف في الوقت؟",
-    "هل بتخاف انك تطلع مع شخص تعرفت عليه عن طريق المواقع؟",
-    "هل انتا من النوع الي بفضل التواصل من وراء الشاشة فقط؟",
-    "اكثر موعد مثالي بنسبة الك؟",
-    "هل عمرك حبيت شخص اكبر منك؟",
-    "هل بتهتم في التفاصيل الصغيرة؟"
-  ],
-  // LEVEL 3 - بالغين (45)
-  [
-    "كيف هو شعورك وانت مع من تحب؟",
-    "وين الاماكن الي بتفضل تمارس فيها الحب؟",
-    "هل عمرك تخيلت تفسك بتمارس مع الشخص الي بتحبو او بتفكر في؟",
-    "شو اكثر موقف جريء حاب تعملو اذا كنت مع شريكك؟",
-    "شو اكثر وضعية حميمية بتحبها وهل عمرك جربتها؟",
-    "هل عمرك قمت بتبديل الادوار في العلاقة او تخيلت ذلك؟",
-    "ما الجزء المفضل لديك في الجسم والذي يثيرك اكثر؟",
-    "ما هو الشيء الذي اذا قام به شريكك يشعرك بالاثارة بسرعة؟",
-    "هل عمرك مثلت انو وصلت لاقصى نشوة عندك؟",
-    "شو اكثر سناريو ساخن او رومنسي تخيلته؟",
-    "اذا ضليت يوم كامل في السرير مع شريكك كيف راح يكون ذلك؟",
-    "عند ممارسة العادة السرية شو الي بخليك تزيد نشوتك؟",
-    "لو شريكك بقرأ الافكار خلال العلاقة شو ممكن انو تفكر؟",
-    "شو اكثر مكان بتحب شريكك انو يمسكك منو او يقدمو الك؟",
-    "كيف شعورك لما تبادلت القبل مع شريكك؟",
-    "كيف سوف يكون شعورك عند اول قبلة لك؟",
-    "شو اكثر غنية ممكن تخليك تفكر في شريكك؟",
-    "اذا كنت الان في غرفة مع شريكك شو ممكن تعمل؟",
-    "هل في وضعية او حركة حاب تجربها مع شريكك؟",
-    "هل بتفضل العنف ولا الرومنسية في العلاقة؟",
-    "هل ممكن انو تستعمل الاكسسوارات الجنسية في العلاقة؟",
-    "شو اكثر اشي بزيد ارتباطك العاطفي في شريكك؟",
-    "هل في كلمة بتحب يحكيلك اياها شريكك اثناء العلاقة؟",
-    "شو اكثر وقت بتشوفو مناسبة للعلاقة؟",
-    "هل تحب ان تكون انت المتحكم ولا الطرف الاخر؟",
-    "هل في ريحت عطر او اي شيء بتزيد الرغبة لديك؟",
-    "هل بحب ان ترسل رسائل حميمية بينك وبين شريكك؟",
-    "هل انت متفتح لدرجة انك ممكن ان تمارس الجنس امام الناس؟",
-    "هل تستمتع في مشاهدة غيرك وهم يمارسون امامك؟",
-    "لو حكينا تتخلى عن نوع جنس شو راح يكون؟",
-    "هل ممكن انك تجرب الجنس في السيارة؟",
-    "هل عمرك مارست الجنس عبر الهاتف او مكالمة؟",
-    "هل عمرك لعبة صراحة جرائه في لعبة جنسية؟",
-    "شو نوع المقاطع الي تشاهدها اثناء العادة السرية؟",
-    "هل بتحب المداعبة اثناء العلاقة؟",
-    "شو كان شعورك في اول مرة مارستها؟",
-    "كيف سوف يكون شعورك عندما تمارس لاول مرة؟",
-    "شو الفرق بين ممارسة الجنس وممارسة الحب؟",
-    "ما هو شعورك انت وشريكك وبينكم مسافات؟",
-    "ما هو الشيء الذي يجذبك في الشخص (المال، الشكل، الجسم، الشخصية)؟",
-    "هل تحب الجنس الثلاثي؟",
-    "هل ممكن ان تشارك شخص اخر بما حصل بينك وبين شريكك اثناء العلاقة؟",
-    "هل لديك مشكل مع الجنس الفموي؟",
-    "هل ممكن ان تهين او تسب شريكك اثناء العلاقة؟",
-    "لو شريكك معك الان شو ممكن تحكيلو؟"
-  ]
-];
+/* ───────── language: phone language by default, remembered after a manual pick ───────── */
+function detectLang(){
+  const saved=store.get('lang',null); if(saved&&LANGS.includes(saved)) return saved;
+  for(const l of (navigator.languages||[navigator.language||'en'])){const b=String(l).slice(0,2).toLowerCase(); if(LANGS.includes(b)) return b;}
+  return 'en';
+}
+let L=detectLang();
+const t=(k,v={})=>{let s=(T[L]&&T[L][k])??T.en[k]??k; for(const x in v) s=s.replace('{'+x+'}',v[x]); return s;};
+function applyLang(){
+  document.documentElement.lang=L; document.documentElement.dir=L==='ar'?'rtl':'ltr';
+  document.title=t('name');
+  $$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));
+  $('#langs').innerHTML=LANGS.map(l=>`<button class="${l===L?'sel':''}" data-lang="${l}">${LANG_NAMES[l]}</button>`).join('');
+  $('#myName').placeholder=t('yourName'); $('#codeIn').placeholder=t('codePh'); $('#chatIn').placeholder=t('typeMsg'); $('#addText').placeholder=t('addQPh');
+  renderAll();
+}
+function setLang(l){L=l;store.set('lang',l);applyLang(); if(NET.role) sendAct({a:'lang',lang:l});}
 
-const QUESTIONS_EN = [
-  // LEVEL 0 - Icebreaker (49)
-  [
-    "What's the first impression people usually get of you?",
-    "What food could you eat every single day?",
-    "If you had a free plane ticket, where would you go?",
-    "What's the strangest habit you have?",
-    "What app do you open most throughout the day?",
-    "If your life were a movie, what would it be called?",
-    "Are you a morning person or a night owl?",
-    "What makes you laugh the fastest?",
-    "If you won a million dollars, what's the first thing you'd do?",
-    "What makes you lose your temper quickly?",
-    "What's your favorite season?",
-    "What's the strangest dream you've ever had?",
-    "If you could learn a new skill, what would it be?",
-    "What song is stuck in your head lately?",
-    "Who is the person you feel most similar to?",
-    "If you had a superpower, what would you choose?",
-    "What's the most embarrassing moment of your life?",
-    "Are you more social or introverted?",
-    "What gets you most excited about life?",
-    "If you could disappear for a whole day, what would you do?",
-    "What's the thing you always keep procrastinating on?",
-    "What achievement are you most proud of?",
-    "If you could go back in time, what would you change?",
-    "When was the last time you helped someone?",
-    "If you're angry, what calms you down the fastest?",
-    "What do you love most about yourself?",
-    "What do you love doing with your friends?",
-    "What country would you love to live in besides your own?",
-    "What daily routine would you never give up?",
-    "Where's your favorite place to relax in your city?",
-    "What do you love doing alone?",
-    "If you were an animal, what would you be?",
-    "What color best represents your personality?",
-    "What's the one thing you can't live without?",
-    "Do you consider yourself a curious person?",
-    "Who knows you the most?",
-    "What do you always end up losing?",
-    "If you could swap lives with a celebrity, who would it be?",
-    "What type of nature do you prefer? (mountains, deserts, forests, sea)",
-    "What makes you cringe the most?",
-    "What bothers you most in a conversation?",
-    "Do you prefer living in a city or countryside?",
-    "What's the first thing you do when you wake up?",
-    "Do you enjoy surprises?",
-    "If you had another name, what would you want it to be?",
-    "Do you prefer planning or going with the flow?",
-    "What word do you say most often?",
-    "What do you enjoy spending money on the most?",
-    "Describe yourself in 3 words."
-  ],
-  // LEVEL 1 - Deep (50)
-  [
-    "What has changed the most about you in the last two years?",
-    "Do you truly believe people can change?",
-    "What's your deepest inner fear?",
-    "When was the last time you cried, and why?",
-    "Do you forgive easily?",
-    "How do you define inner peace?",
-    "What is something you'd never compromise on?",
-    "Do you find being alone comforting?",
-    "What's a decision you deeply regret?",
-    "Do you trust people quickly?",
-    "What's your favorite quality about yourself?",
-    "What quality do you try to hide about yourself?",
-    "Do you care what others think of you?",
-    "When do you feel most vulnerable?",
-    "What's something you wish someone would say to you?",
-    "Who has had the biggest impact on your life?",
-    "Do you feel that love is a choice or a feeling?",
-    "How do you define success?",
-    "Do you believe in love?",
-    "Do you give second chances in relationships?",
-    "What was the hardest goodbye you've experienced?",
-    "Do you consider yourself an honest person?",
-    "What do you most wish people understood about you?",
-    "What's a question you've always wanted to ask yourself honestly?",
-    "Do you think you know yourself well?",
-    "What's the hardest truth you've accepted?",
-    "Do you believe time changes everything?",
-    "What silently drains your energy without you noticing?",
-    "How do you define a mature person?",
-    "Who controls you more — your mind or your heart?",
-    "What hurts you but you never talk about?",
-    "Does fear ever hold you back from things you want to do?",
-    "Do you think you're a difficult person?",
-    "If you lost everything, what would you most want to keep?",
-    "What gives your life meaning?",
-    "Are you hard on yourself?",
-    "What's the hardest emotion you've ever felt?",
-    "What do you regret not saying?",
-    "Do you get emotionally attached quickly?",
-    "Do you think honesty is always right?",
-    "Are you afraid of the future?",
-    "Do you believe everything happens for a reason?",
-    "Do you feel like you give more than you receive?",
-    "Do you consider yourself a sensitive person?",
-    "What was the hardest choice you've ever had to make?",
-    "Would you say you're a jealous person?",
-    "When you're upset, do you talk to someone?",
-    "Do you cry often?",
-    "Do you judge people at first sight?",
-    "What's your most frequent prayer for yourself?"
-  ],
-  // LEVEL 2 - Embarrassing (57)
-  [
-    "Has anyone ever rejected you?",
-    "What's the biggest lie you told and people believed it?",
-    "Have you ever sent a message to the wrong person?",
-    "Who was the last person you got jealous of?",
-    "What's the most childish thing you still do?",
-    "Can I see the most embarrassing photo on your phone?",
-    "Who was the last person you blocked?",
-    "What's a moment you felt extremely jealous?",
-    "What's your weirdest habit?",
-    "If we searched your phone, what would be the most embarrassing thing on it?",
-    "Do you talk about people behind their backs?",
-    "What's a moment that let you down the most?",
-    "Have you ever been embarrassed in front of someone you liked?",
-    "What's the most dramatic reaction you've had when angry?",
-    "Who was the last person you dreamed about?",
-    "Are you currently in a relationship?",
-    "Who do you think about the most?",
-    "What's most likely to make you jealous?",
-    "Who catches your attention the fastest?",
-    "Have you ever pretended not to care when you actually cared a lot?",
-    "What do you find most attractive about a person?",
-    "What's your biggest weakness when it comes to someone?",
-    "What's the most nervous you've been because of a person?",
-    "If you could send an 'I miss you' to someone, who would it be?",
-    "What makes you lose interest the fastest?",
-    "Who's the person you never expected to forget?",
-    "Have you ever loved someone who didn't know?",
-    "If someone you liked, how would you get their attention?",
-    "Who are you most jealous of?",
-    "What's a moment your heart was beating so fast?",
-    "If you had to remove someone from your life, who would it be?",
-    "What's something you could never tolerate in a relationship?",
-    "What attracts you more — looks or personality?",
-    "Have you ever broken someone's heart?",
-    "Do you prefer being in control or being cared for?",
-    "If you could send a message to someone you love, what would it say?",
-    "Have you ever wanted to reconnect with someone you lost?",
-    "What words make you explode with anger 🔥?",
-    "If someone confessed their love to you right now, what's the first question you'd ask?",
-    "What do you think best shows that someone is interested?",
-    "Have you ever intentionally ignored someone to see if they care?",
-    "Could you fall for someone just because of how they think?",
-    "What's the biggest secret you've kept about your feelings?",
-    "If someone described you in one word in a relationship, what would it be?",
-    "What action keeps you thinking about a person all day?",
-    "What embarrasses you most in a relationship?",
-    "Do you prefer mysterious or straightforward people?",
-    "Have you ever regretted being honest with someone?",
-    "What's the most convincing sign that someone likes you?",
-    "Is there someone whose message would make you drop everything to reply?",
-    "If you had to choose between attention and jealousy, which would you pick?",
-    "What's a happy moment you wished could freeze in time?",
-    "Are you scared to meet someone you only know online?",
-    "Do you prefer communicating behind a screen only?",
-    "What's your ideal date?",
-    "Have you ever liked someone older than you?",
-    "Do you pay attention to small details?"
-  ],
-  // LEVEL 3 - Adults (45)
-  [
-    "How do you feel when you're with someone you love?",
-    "Where do you prefer to make love?",
-    "Have you ever imagined being intimate with someone you like?",
-    "What's a bold move you'd want to make with your partner?",
-    "What's your favorite intimate position and have you ever tried it?",
-    "Have you ever switched roles in a relationship or imagined doing so?",
-    "What part of the body do you find most attractive?",
-    "What's something your partner could do that would excite you instantly?",
-    "Have you ever faked reaching climax?",
-    "What's the most passionate or romantic scenario you've imagined?",
-    "If you spent an entire day in bed with your partner, how would it be?",
-    "What makes self-pleasure more intense for you?",
-    "If your partner could read your mind during intimacy, what might they find?",
-    "Where on your body do you most like being touched?",
-    "How did you feel when you last kissed your partner?",
-    "How do you think your first kiss will feel?",
-    "What song makes you think of your partner?",
-    "If you were in a room with your partner right now, what would you do?",
-    "Is there a position or move you'd like to try with your partner?",
-    "Do you prefer passionate or romantic intimacy?",
-    "Would you ever use adult accessories in a relationship?",
-    "What strengthens your emotional bond with your partner the most?",
-    "Is there a word you love hearing from your partner during intimacy?",
-    "When do you feel most in the mood?",
-    "Do you prefer being in control or giving control?",
-    "Is there a scent or anything else that increases your desire?",
-    "Do you enjoy sending intimate messages to your partner?",
-    "Are you open enough to be intimate in front of others?",
-    "Do you enjoy watching others being intimate in front of you?",
-    "If you had to give up one type of sex, what would it be?",
-    "Would you ever try having sex in a car?",
-    "Have you ever had phone sex or a video call?",
-    "Has a dare game ever turned into a sexual game?",
-    "What type of content do you watch during self-pleasure?",
-    "Do you enjoy foreplay during intimacy?",
-    "How did you feel the first time you were intimate?",
-    "How do you think you'll feel the first time you're intimate?",
-    "What's the difference between having sex and making love?",
-    "How do you feel when you and your partner are apart?",
-    "What attracts you to a person most? (money, looks, body, personality)",
-    "Are you open to a threesome?",
-    "Would you ever tell someone else what happens between you and your partner?",
-    "Do you have any issues with oral sex?",
-    "Would you ever talk dirty to your partner during intimacy?",
-    "If your partner were here right now, what would you tell them?"
-  ]
-];
+/* ───────── sound & haptics ───────── */
+let actx=null, soundOn=store.get('sound',true);
+function beep(kind){ if(!soundOn) return; try{actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended')actx.resume();
+  const seq={tap:[[520,.06]],card:[[440,.07],[660,.09]],done:[[523,.08],[659,.08],[784,.14]],pass:[[330,.12],[247,.16]],msg:[[880,.05],[1175,.07]]}[kind]||[[500,.05]];
+  let tt=actx.currentTime; seq.forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,tt);g.gain.exponentialRampToValueAtTime(.22,tt+.01);g.gain.exponentialRampToValueAtTime(.0001,tt+d);o.connect(g).connect(actx.destination);o.start(tt);o.stop(tt+d+.02);tt+=d;});
+}catch(e){} }
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
 
-// ══════════════════════════════════════════
-// APP STATE
-// ══════════════════════════════════════════
-let lang = 'ar';
-let mode = 'create';
-let myId = 'u_' + Math.random().toString(36).substr(2,9);
-let myName = '';
-let roomCode = '';
-let isHost = false;
-let isSolo = false;
-let currentLevel = 0;
-let currentCardIdx = 0;
-let players = {};
-let currentTurnId = '';
-let chatMsgCount = 0;
-let chatUnread = 0;
-let customQuestions = [[],[],[],[]];
-let usedIndices = [];
-let db = null;
-let roomRef = null;
-let unsubscribers = [];
+/* ───────── screens / toast / modal ───────── */
+let cur='home';
+function go(id){ cur=id; $$('.screen').forEach(s=>s.classList.toggle('on',s.id===id)); closeSheets(); renderAll(); }
+let toastT; function toast(msg){const e=$('#toast');e.textContent=msg;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),2600);}
+function modal(html){ $('#modalBox').innerHTML=html; $('#modal').classList.add('on'); $('#veil').classList.add('on'); }
+function closeModal(){ $('#modal').classList.remove('on'); if(!$$('.sheet.on').length) $('#veil').classList.remove('on'); }
+function openSheet(id){ closeSheets(); $('#'+id).classList.add('on'); $('#veil').classList.add('on'); }
+function closeSheets(){ $$('.sheet').forEach(s=>s.classList.remove('on')); $('#modal').classList.remove('on'); $('#veil').classList.remove('on'); chatOpen=false; }
 
-const EMOJIS = ['🦁','🐯','🦊','🐺','🦅','🐉','🦋','🌙','⚡','🔥','💎','🌟','🎯','🎸','🚀','🌈'];
-
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-window.onload = () => {
-  buildParticles();
-  applyLang();
-
-  // Try Firebase
-  try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    console.log('Firebase connected');
-  } catch(e) {
-    console.warn('Firebase init failed — offline mode');
-    db = null;
+/* ───────── questions & decks ───────── */
+let custom=store.get('custom',{light:[],medium:[],spicy:[],hot:[]});
+const LI=()=>LANGS.indexOf(L)+1; // column of the current language in a question row [type, ar, en, ru, uz]
+function cardText(c){ if(!c) return ''; if(c.x!=null) return c.x; const row=Q[c.c][c.i]; return row[1+['ar','en','ru','uz'].indexOf(L)]||row[2]; }
+const decks={};
+function draw(cat,ty){
+  const key=cat+ty;
+  if(!decks[key]||!decks[key].length){
+    const pool=[]; Q[cat].forEach((r,i)=>{if(r[0]===ty) pool.push({c:cat,i,ty})});
+    (custom[cat]||[]).forEach(q=>{if(q.ty===ty) pool.push({c:cat,x:q.x,ty})});
+    for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
+    decks[key]=pool;
   }
-};
+  return decks[key].pop();
+}
+const catCount=c=>Q[c].length+(custom[c]||[]).length;
 
-function buildParticles() {
-  const c = document.getElementById('pts');
-  for(let i=0; i<18; i++) {
-    const d = document.createElement('div');
-    d.className = 'pt';
-    const s = 3 + Math.random()*5;
-    d.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${['#FFD700','#FF6D00','#FF1744','#7C4DFF','#00E676'][Math.floor(Math.random()*5)]};animation-duration:${8+Math.random()*10}s;animation-delay:${Math.random()*10}s;opacity:0`;
-    c.appendChild(d);
+/* ───────── shared game state (local = I am the host of myself) ───────── */
+let S=freshState();
+function freshState(){return {cat:'light',players:[],turn:0,card:null,hist:[],started:false,seq:0};}
+let viewIdx=null; // null = live card, otherwise index in S.hist being reviewed
+let ageOk=false, lastCardSeq=-1;
+const me=()=>NET.role?NET.id:null;
+const curP=()=>S.players[S.turn%Math.max(1,S.players.length)];
+
+function apply(a,from){
+  const host=!NET.role||NET.role==='host';
+  if(!host) return;
+  const isHostAct=!NET.role||from===NET.id, isTurn=curP()&&curP().id===from;
+  const p=S.players.find(x=>x.id===from);
+  switch(a.a){
+    case 'lang': if(p) p.lang=a.lang; break;
+    case 'voice': if(p) p.v=!!a.on; break;
+    case 'cat': if(!isHostAct) return; S.cat=a.c; S.card=null; break;
+    case 'start': if(!isHostAct) return; S.started=true; break;
+    case 'reset': if(!isHostAct) return; S.players.forEach(x=>x.score=0); S.hist=[]; S.card=null; S.turn=0; break;
+    case 'pick': if(!(isHostAct||isTurn)||S.card) return;
+      { const ty=a.ty==='r'?(Math.random()<.6?'t':'d'):a.ty; S.card=draw(S.cat,ty); S.hist.push({card:S.card,pid:curP().id,res:null}); S.seq++; } break;
+    case 'skip': if(!(isHostAct||isTurn)||!S.card) return;
+      S.card=draw(S.cat,S.card.ty); S.hist[S.hist.length-1].card=S.card; S.seq++; break;
+    case 'done': case 'pass': if(!(isHostAct||isTurn)||!S.card) return;
+      if(a.a==='done') curP().score++;
+      S.hist[S.hist.length-1].res=a.a; S.card=null; S.turn=(S.turn+1)%S.players.length; break;
   }
+  if(S.hist.length>200) S.hist=S.hist.slice(-200);
+  if(NET.role==='host') broadcast({k:'state',s:S});
+  renderAll();
+}
+function sendAct(a){
+  if(NET.role==='guest'){ NET.conn&&NET.conn.open&&NET.conn.send({k:'act',a}); }
+  else apply(a, NET.role?NET.id:null);
+}
+function act(a){ // action from the UI, with turn check for online guests
+  if(['pick','skip','done','pass'].includes(a.a)&&NET.role&&NET.role!=='host'&&curP()&&curP().id!==NET.id){toast(t('notTurn'));return;}
+  if(a.a==='done') {beep('done');buzz(40);} else if(a.a==='pass'){beep('pass');buzz([30,40,30]);} else beep('card');
+  viewIdx=null; sendAct(a);
 }
 
-// ══════════════════════════════════════════
-// LANGUAGE
-// ══════════════════════════════════════════
-const T = {
-  ar: {
-    logo:'🔥 جرأة وتحدي', sub:'العب مع من تحب', lbl_name:'اسمك في اللعبة',
-    lbl_create:'إنشاء غرفة', lbl_create_d:'العب مع أصدقائك',
-    lbl_join:'الانضمام', lbl_join_d:'ادخل كود الغرفة',
-    lbl_roomcode:'كود الغرفة', startBtn_create:'إنشاء غرفة 🎮', startBtn_join:'انضمام 🚪',
-    soloBtn:'لعب منفرد 👤', lbl_waiting:'في انتظار اللاعبين',
-    lbl_share_code:'شارك الكود مع أصدقائك', lbl_tap_copy:'اضغط للنسخ 📋',
-    lbl_players:'اللاعبون', lbl_start_game:'ابدأ اللعبة 🚀', lbl_leave:'مغادرة الغرفة',
-    lbl_choose_level:'اختر المستوى', lbl_choose_sub:'كل مستوى أجرأ من السابق',
-    lv1_name:'تعارفي', lv2_name:'عميق', lv3_name:'محرج', lv4_name:'بالغين',
-    lbl_back_lobby:'← رجوع', lbl_room_tag:'غرفة اللعب',
-    lbl_next_card:'التالي ▶', lbl_answered:'أجبت ✓', lbl_add_sm:'➕',
-    lbl_chat:'الشات', lbl_q_level:'المستوى', lbl_q_text:'السؤال',
-    lbl_add_q_btn:'إضافة السؤال ✓', lbl_custom_qs:'أسئلتك المضافة',
-    myturn:'دورك ✨', otherturn:'دور', turnSub:'دورك! اقرأ السؤال وأجب',
-    turnOkBtn:'حسناً ✓', host:'مضيف', you:'أنت',
-    pname_placeholder:'أدخل اسمك...', joincode_placeholder:'أدخل الكود...',
-    chat_placeholder:'اكتب رسالة...',
-    lvl_pills:['تعارفي 😊','عميق 💙','محرج 🔥','بالغين 🔞'],
-    lvl_icons:['😊','💙','🔥','🔞'],
-    card_start:'في انتظار بدء اللعبة...',
-    toast_copied:'تم النسخ! 📋', toast_name:'أدخل اسمك أولاً',
-    toast_joined:'انضممت للغرفة!', toast_created:'تم إنشاء الغرفة!',
-    toast_answered:'+1 نقطة! 🎉', toast_noturn:'انتظر دورك!',
-    toast_qadded:'تم إضافة السؤال ✓', toast_noq:'اكتب سؤالاً أولاً',
-    lv1_cnt:'49 سؤال', lv2_cnt:'50 سؤال', lv3_cnt:'57 سؤال', lv4_cnt:'45 سؤال',
-    online_txt:'أونلاين', offline_txt:'بدون إنترنت',
-    lbl_social_title:'روابط التواصل (اختياري)',
-    lbl_wa:'واتساب', lbl_tg:'تلجرام', lbl_dc:'ديسكورد',
-    lbl_wa_input:'رقم الواتساب (مع كود الدولة)',
-    lbl_tg_input:'يوزر تلجرام', lbl_dc_input:'يوزر ديسكورد',
-    lbl_save_wa:'حفظ', lbl_save_tg:'حفظ', lbl_save_dc:'حفظ',
-    lbl_contacts_title:'تواصل مع اللاعبين 📲'
-  },
-  en: {
-    logo:'🔥 Dare & Challenge', sub:'Play with those you love', lbl_name:'Your name in the game',
-    lbl_create:'Create Room', lbl_create_d:'Play with friends',
-    lbl_join:'Join Room', lbl_join_d:'Enter room code',
-    lbl_roomcode:'Room Code', startBtn_create:'Create Room 🎮', startBtn_join:'Join 🚪',
-    soloBtn:'Solo Play 👤', lbl_waiting:'Waiting for players',
-    lbl_share_code:'Share the code with friends', lbl_tap_copy:'Tap to copy 📋',
-    lbl_players:'Players', lbl_start_game:'Start Game 🚀', lbl_leave:'Leave Room',
-    lbl_choose_level:'Choose Level', lbl_choose_sub:'Each level gets bolder',
-    lv1_name:'Icebreaker', lv2_name:'Deep', lv3_name:'Embarrassing', lv4_name:'Adults',
-    lbl_back_lobby:'← Back', lbl_room_tag:'Game Room',
-    lbl_next_card:'Next ▶', lbl_answered:'Answered ✓', lbl_add_sm:'➕',
-    lbl_chat:'Chat', lbl_q_level:'Level', lbl_q_text:'Question',
-    lbl_add_q_btn:'Add Question ✓', lbl_custom_qs:'Your Custom Questions',
-    myturn:'Your Turn ✨', otherturn:"'s Turn", turnSub:"It's your turn! Read and answer",
-    turnOkBtn:'Got it ✓', host:'Host', you:'You',
-    pname_placeholder:'Enter your name...', joincode_placeholder:'Enter code...',
-    chat_placeholder:'Type a message...',
-    lvl_pills:['Icebreaker 😊','Deep 💙','Embarrassing 🔥','Adults 🔞'],
-    lvl_icons:['😊','💙','🔥','🔞'],
-    card_start:'Waiting for the game to start...',
-    toast_copied:'Copied! 📋', toast_name:'Please enter your name first',
-    toast_joined:'Joined the room!', toast_created:'Room created!',
-    toast_answered:'+1 Point! 🎉', toast_noturn:"Wait for your turn!",
-    toast_qadded:'Question added ✓', toast_noq:'Write a question first',
-    lv1_cnt:'49 questions', lv2_cnt:'50 questions', lv3_cnt:'57 questions', lv4_cnt:'45 questions',
-    online_txt:'Online', offline_txt:'Offline',
-    lbl_social_title:'Contact Links (Optional)',
-    lbl_wa:'WhatsApp', lbl_tg:'Telegram', lbl_dc:'Discord',
-    lbl_wa_input:'WhatsApp number (with country code)',
-    lbl_tg_input:'Telegram username', lbl_dc_input:'Discord username',
-    lbl_save_wa:'Save', lbl_save_tg:'Save', lbl_save_dc:'Save',
-    lbl_contacts_title:'Contact Players 📲'
-  }
-};
+const maxReview=()=>S.hist.length-(S.card?2:1); // last index you can review (the live card is excluded)
+function goPrev(){ const m=maxReview(); if(m<0) return; viewIdx=viewIdx==null?m:Math.max(0,viewIdx-1); }
+/* ───────── rendering ───────── */
+const avatar=(p,i)=>`<span class="av" style="background:${AVC[i%AVC.length]}">${esc((p.name||'?').trim().charAt(0).toUpperCase())}</span>`;
+function setCatColor(){ document.documentElement.style.setProperty('--c',`var(--${S.cat})`); }
+function renderAll(){
+  setCatColor();
+  if(cur==='setup') renderSetup();
+  if(cur==='lobby') renderLobby();
+  if(cur==='cats') renderCats('#catGrid');
+  if(cur==='game') renderGame();
+  renderVoice(); renderBadges();
+}
+function catTiles(sel){return CATS.map(c=>`<button class="cat ${sel===c?'sel':''}" data-cat="${c}" style="background:var(--${c})"><span class="ce">${EMO[c]}</span><span class="cn">${t('count',{n:catCount(c)})}</span><b>${t('cat_'+c)}</b><small>${t('catd_'+c)}</small></button>`).join('');}
+function renderCats(where){ $(where).innerHTML=catTiles(S.cat); }
 
-function t(key) { return T[lang][key] || key; }
+let localNames=store.get('names',['','']);
+function renderSetup(){
+  $('#localList').innerHTML=localNames.map((n,i)=>`<div class="field">${avatar({name:n||String(i+1)},i)}<input class="inp" data-pi="${i}" value="${esc(n)}" placeholder="${esc(t('playerPh'))} ${i+1}" maxlength="18">${localNames.length>2?`<button class="del" data-del="${i}" aria-label="remove">✕</button>`:''}</div>`).join('');
+  $('#setupHint').textContent=t('rulesText');
+}
+function renderLobby(){
+  $('#lobbyCode').textContent=NET.code||'-----';
+  $('#lobbyList').innerHTML=S.players.map((p,i)=>`<div class="pl">${avatar(p,i)}<span class="nm">${esc(p.name)}</span>${p.v?`<span class="pill">🎙 ${t('inVoice')}</span>`:''}<span class="pill">${LANG_NAMES[p.lang]||''}</span>${i===0?`<span class="pill">${t('host')}</span>`:''}${p.id===NET.id?`<span class="pill">${t('you')}</span>`:''}</div>`).join('');
+  const host=NET.role==='host';
+  $('#lobbyStart').style.display=host?'':'none';
+  $('#lobbyStart').disabled=S.players.length<2;
+  $('#lobbyHint').textContent=host?(S.players.length<2?t('minPlayers'):''):t('waitHost');
+}
+function renderGame(){
+  $$('.olonly').forEach(e=>e.style.display=NET.role?'':'none');
+  $('#catName').textContent=EMO[S.cat]+' '+t('cat_'+S.cat);
+  const cp=curP(); const mine=NET.role&&cp&&cp.id===NET.id;
+  renderScoresBar();
+  const tu=$('#turn'); tu.classList.toggle('me',!!mine);
+  tu.querySelector('.who').textContent=mine?t('yourTurn'):t('turn',{name:cp?cp.name:''});
+  tu.querySelector('.sub').textContent=S.card?'':t('chooseType');
+  // card: live or history
+  const hist=S.hist, reviewing=viewIdx!=null&&hist[viewIdx];
+  const card=$('#card'); const shown=reviewing?hist[viewIdx].card:S.card;
+  const needGate=S.cat==='hot'&&!ageOk&&!reviewing;
+  card.className='card'+(shown?'':' empty')+(needGate&&shown?' blur':'');
+  if(shown){
+    const pl=S.players.find(p=>p.id===(reviewing?hist[viewIdx].pid:cp&&cp.id));
+    const res=reviewing&&hist[viewIdx].res;
+    card.innerHTML=`<span class="ty ${shown.ty}">${shown.ty==='t'?t('truth'):t('dare')}</span><div class="q">${esc(cardText(shown))}</div><div class="ft"><span>${esc(pl?pl.name:'')}</span><span class="res">${res==='done'?'✓ '+t('done').replace('✓','').trim():res==='pass'?'✗ '+t('pass'):EMO[shown.c]+' '+t('cat_'+shown.c)}</span></div>`;
+  } else card.innerHTML=`<div class="q"><b>?</b>${esc(t('chooseType'))}</div>`;
+  const seqKey=reviewing?'h'+viewIdx:'s'+S.seq;
+  if(shown&&seqKey!==lastCardSeq){card.classList.remove('anim');void card.offsetWidth;card.classList.add('anim');}
+  lastCardSeq=seqKey;
+  // history nav
+  const n=hist.length, mr=maxReview();
+  const posTxt=reviewing?t('histPos',{i:viewIdx+1,n}):(S.card?t('histPos',{i:n,n}):'');
+  $('#nav').innerHTML=mr>=0?`<button class="btn" data-act="prev" ${reviewing&&viewIdx===0?'disabled':''}><span class="flip">‹</span> ${t('prev')}</button><span class="pos">${posTxt}</span><button class="btn" data-act="next" ${!reviewing?'disabled':''}>${t('next')} <span class="flip">›</span></button>`:'';
+  // controls
+  const canAct=!NET.role||NET.role==='host'||mine;
+  let c='';
+  if(reviewing) c=`<button class="btn accent" data-act="live">${t('live')}</button>`;
+  else if(!S.card) c=canAct?`<div class="pick"><button class="btn t" data-pick="t">${t('truth')}</button><button class="btn d" data-pick="d">${t('dare')}</button><button class="btn r" data-pick="r">🎲 ${t('random')}</button></div>`:`<p class="hint">${t('turn',{name:cp?esc(cp.name):''})}</p>`;
+  else c=canAct?`<div class="acts"><button class="btn" data-act="pass">✗ ${t('pass')}</button><button class="btn accent" data-act="done">${t('done')}</button><button class="btn" data-act="skip">↻ ${t('skip')}</button></div>`:`<p class="hint">${t('turn',{name:cp?esc(cp.name):''})}</p>`;
+  $('#controls').innerHTML=c;
+  if(needGate&&shown&&!$('#modal').classList.contains('on')) ageGate(()=>renderAll(),()=>{ if(!NET.role||NET.role==='host') act({a:'cat',c:'light'}); else renderAll(); });
+}
+function renderScoresBar(){ $('#scores').innerHTML=S.players.map((p,i)=>`<div class="sc ${i===S.turn?'cur':''}">${avatar(p,i)}<span>${esc(p.name)}</span><b>${p.score}</b>${talking.has(p.id)?'<i class="talk"></i>':''}</div>`).join(''); }
+function renderScores(){
+  const arr=S.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);
+  $('#scoreList').innerHTML=(arr.length&&arr[0].p.score>0?`<p class="hint" style="font-size:1.05rem;color:var(--txt)">${esc(t('winner',{name:arr[0].p.name}))}</p>`:'')+arr.map(({p,i})=>`<div class="pl">${avatar(p,i)}<span class="nm">${esc(p.name)}</span><b>${p.score} ${t('points')}</b></div>`).join('');
+  $('#scoreSheet [data-act=reset]').style.display=(!NET.role||NET.role==='host')?'':'none';
+}
+function renderBadges(){ $$('[data-act=chat] .badge').forEach(b=>{b.hidden=!unread;b.textContent=unread;}); }
 
-function toggleLang() {
-  lang = lang === 'ar' ? 'en' : 'ar';
-  document.getElementById('langBtn').textContent = lang === 'ar' ? 'EN' : 'AR';
-  document.documentElement.setAttribute('lang', lang);
-  document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-  applyLang();
+function ageGate(ok,no){
+  modal(`<div style="font-size:2.6rem">🔞</div><h3>${t('ageTitle')}</h3><p>${t('ageText')}</p><button class="btn main" data-act="ageYes">${t('ageYes')}</button><button class="btn" data-act="ageNo">${t('ageNo')}</button>`);
+  ageCb={ok,no};
+}
+let ageCb=null;
+function chooseCat(c){
+  const doIt=()=>{ if(NET.role==='guest'){toast(t('waitHost'));return;} act({a:'cat',c}); closeSheets(); if(cur==='cats'){ if(!NET.role||NET.role==='host'){ if(NET.role==='host'&&!S.started) sendAct({a:'start'}); go('game'); } } };
+  if(c==='hot'&&!ageOk) ageGate(()=>{doIt()},()=>{}); else doIt();
 }
 
-function applyLang() {
-  const ids = ['logoText','subText','lbl_name','lbl_create','lbl_create_d','lbl_join','lbl_join_d',
-    'lbl_roomcode','soloBtn','lbl_waiting','lbl_share_code','lbl_tap_copy','lbl_players',
-    'lbl_start_game','lbl_leave','lbl_choose_level','lbl_choose_sub','lv1_name','lv2_name',
-    'lv3_name','lv4_name','lbl_back_lobby','lbl_room_tag','lbl_next_card','lbl_answered',
-    'lbl_add_sm','lbl_chat','lbl_q_level','lbl_q_text','lbl_add_q_btn','lbl_custom_qs',
-    'lv1_cnt','lv2_cnt','lv3_cnt','lv4_cnt',
-    'lbl_social_title','lbl_wa','lbl_tg','lbl_dc','lbl_wa_input','lbl_tg_input','lbl_dc_input',
-    'lbl_save_wa','lbl_save_tg','lbl_save_dc','lbl_contacts_title'];
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if(el && T[lang][id]) el.textContent = T[lang][id];
+/* ───────── local game ───────── */
+function startLocal(){
+  $$('#localList input').forEach(i=>localNames[+i.dataset.pi]=i.value.trim());
+  const names=localNames.map((n,i)=>n||`${t('playerPh')} ${i+1}`);
+  store.set('names',localNames);
+  leaveNet(); S=freshState(); S.players=names.map((n,i)=>({id:'p'+i,name:n,score:0,lang:L})); S.started=true;
+  go('cats');
+}
+
+/* ───────── online: rooms over WebRTC (PeerJS) ───────── */
+const PREFIX='truthordare-lgz-';
+const qs=new URLSearchParams(location.search);
+const PEER_OPTS=(()=>{const o={debug:0,config:{iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:global.stun.twilio.com:3478'},
+  {urls:'turn:openrelay.metered.ca:80',username:'openrelayproject',credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443',username:'openrelayproject',credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443?transport=tcp',username:'openrelayproject',credential:'openrelayproject'}]}};
+  if(qs.get('peerhost')){o.host=qs.get('peerhost');o.port=+(qs.get('peerport')||9000);o.path='/';o.secure=false;}
+  return o;})();
+const NET={role:null,peer:null,conn:null,conns:new Map(),id:null,code:null};
+const genCode=()=>Array.from({length:5},()=>'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.random()*31|0]).join('');
+function myName(){const n=$('#myName').value.trim(); store.set('myname',n); return n;}
+function needName(){ if(!myName()){ $('#myName').focus(); $('#myName').style.borderColor='var(--hot)'; toast(t('yourName')); return true;} return false; }
+function busy(on){ $$('#online .btn').forEach(b=>b.disabled=on); if(on) toast(t('connecting')); }
+
+function createRoom(tries=0){
+  if(needName()) return; leaveNet(); busy(true);
+  const code=genCode(); const peer=new Peer(PREFIX+code,PEER_OPTS);
+  NET.peer=peer;
+  peer.on('open',id=>{ NET.role='host'; NET.id=id; NET.code=code; busy(false);
+    S=freshState(); S.players=[{id,name:myName(),score:0,lang:L,v:false}]; chat=[]; startHeartbeat(); history.replaceState(null,'','?room='+code+(qs.get('peerhost')?`&peerhost=${qs.get('peerhost')}&peerport=${qs.get('peerport')||9000}`:'')); go('lobby'); });
+  peer.on('connection',conn=>{
+    conn.on('data',d=>hostRecv(conn,d));
+    conn.on('close',()=>dropGuest(conn.peer));
+    conn.on('error',()=>dropGuest(conn.peer));
   });
-  document.getElementById('startBtn').textContent = mode==='create' ? t('startBtn_create') : t('startBtn_join');
-  const pi = document.getElementById('playerName');
-  if(pi) pi.placeholder = t('pname_placeholder');
-  const ji = document.getElementById('joinCode');
-  if(ji) ji.placeholder = t('joincode_placeholder');
-  const ci = document.getElementById('chatInp');
-  if(ci) ci.placeholder = t('chat_placeholder');
-  const turnOkEl = document.getElementById('turnOkBtn');
-  if(turnOkEl) turnOkEl.textContent = t('turnOkBtn');
-  // update game pill if visible
-  updateLvlPill();
+  peer.on('call',onCall);
+  peer.on('disconnected',()=>{ try{peer.reconnect()}catch(e){} });
+  peer.on('error',e=>{ if(e.type==='unavailable-id'&&tries<3){ peer.destroy(); createRoom(tries+1); return;} if(NET.role!=='host'){busy(false);toast(t('connFail'));} });
 }
-
-// ══════════════════════════════════════════
-// SCREEN MANAGEMENT
-// ══════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('off'));
-  document.getElementById(id).classList.remove('off');
+function hostRecv(conn,d){
+  if(!d||typeof d!=='object') return;
+  lastSeen.set(conn.peer,Date.now());
+  if(d.k==='pong') return;
+  if(d.k==='bye'){ dropGuest(conn.peer); return; }
+  if(d.k==='hello'){
+    NET.conns.set(conn.peer,conn);
+    if(!S.players.find(p=>p.id===conn.peer)) S.players.push({id:conn.peer,name:String(d.name||'?').slice(0,18),score:0,lang:LANGS.includes(d.lang)?d.lang:'en',v:false});
+    conn.send({k:'welcome',code:NET.code,chat:chat.slice(-50)});
+    sys('joined',String(d.name||'?').slice(0,18)); broadcast({k:'state',s:S}); renderAll(); beep('msg');
+  } else if(d.k==='act'&&d.a) apply(d.a,conn.peer);
+  else if(d.k==='chat'){ const p=S.players.find(x=>x.id===conn.peer); if(!p) return; const m={id:Date.now()+Math.random(),from:p.id,name:p.name,lang:p.lang,text:String(d.text).slice(0,600)}; addMsg(m); broadcast({k:'chat',m}); }
+  else if(d.k==='talk'){ setTalk(conn.peer,d.on); broadcast({k:'talk',id:conn.peer,on:d.on},conn.peer); }
 }
-
-// ══════════════════════════════════════════
-// HOME SCREEN
-// ══════════════════════════════════════════
-function selectMode(m) {
-  mode = m;
-  document.getElementById('modeCreate').classList.toggle('sel', m==='create');
-  document.getElementById('modeJoin').classList.toggle('sel', m==='join');
-  document.getElementById('joinCodeField').style.display = m==='join' ? 'block' : 'none';
-  document.getElementById('startBtn').textContent = m==='create' ? t('startBtn_create') : t('startBtn_join');
+function dropGuest(id){
+  if(!NET.conns.has(id)) return; NET.conns.delete(id);
+  const i=S.players.findIndex(p=>p.id===id); if(i<0) return;
+  const name=S.players[i].name; S.players.splice(i,1);
+  if(S.turn>=S.players.length) S.turn=0; else if(i<S.turn) S.turn--;
+  hangup(id); talking.delete(id); sys('left',name); broadcast({k:'state',s:S}); renderAll();
 }
+const lastSeen=new Map(); let hbTimer=null;
+function startHeartbeat(){ clearInterval(hbTimer); hbTimer=setInterval(()=>{
+  if(NET.role==='host'){ broadcast({k:'ping'}); const now=Date.now(); [...NET.conns.keys()].forEach(id=>{ if(now-(lastSeen.get(id)||now)>12000) dropGuest(id); }); }
+  else if(NET.role==='guest'){ if(NET.conn&&NET.conn.open) NET.conn.send({k:'pong'}); if(Date.now()-(lastSeen.get('host')||Date.now())>12000) hostGone(); }
+},3000); }
+function hostGone(){ if(NET.role!=='guest') return; toast(t('hostLeft')); leaveNet(); S=freshState(); go('home'); }
+function broadcast(msg,except){ NET.conns.forEach((c,id)=>{ if(id!==except&&c.open) try{c.send(msg)}catch(e){} }); }
 
-async function startAction() {
-  myName = document.getElementById('playerName').value.trim();
-  if(!myName) { showToast(t('toast_name')); return; }
-  
-  if(mode === 'create') await createRoom();
-  else await joinRoom();
-}
-
-function goSolo() {
-  myName = document.getElementById('playerName').value.trim() || (lang==='ar'?'اللاعب':'Player');
-  isSolo = true;
-  isHost = true;
-  roomCode = 'SOLO';
-  currentLevel = 0;
-  showScreen('levelScreen');
-}
-
-// ══════════════════════════════════════════
-// FIREBASE ROOM MANAGEMENT
-// ══════════════════════════════════════════
-function genCode() {
-  return Math.random().toString(36).substr(2,6).toUpperCase();
-}
-
-async function createRoom() {
-  roomCode = genCode();
-  isHost = true;
-  
-  if(db) {
-    try {
-      roomRef = db.ref('rooms/' + roomCode);
-      const playerEmoji = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
-      await roomRef.set({
-        host: myId,
-        level: 0,
-        cardIdx: 0,
-        currentTurn: myId,
-        status: 'lobby',
-        createdAt: Date.now(),
-        players: {
-          [myId]: { name: myName, emoji: playerEmoji, score: 0, joinedAt: Date.now() }
-        },
-        chat: {},
-        turnOrder: [myId]
-      });
-
-      // Remove room on disconnect
-      roomRef.onDisconnect().remove();
-
-      listenToRoom();
-      document.getElementById('displayCode').textContent = roomCode;
-      showScreen('lobbyScreen');
-      showToast(t('toast_created'));
-    } catch(e) {
-      console.error('Create room error:', e);
-      createRoomOffline();
-    }
-  } else {
-    createRoomOffline();
-  }
-}
-
-function createRoomOffline() {
-  players[myId] = { name: myName, emoji: EMOJIS[0], score: 0 };
-  currentTurnId = myId;
-  document.getElementById('displayCode').textContent = roomCode;
-  showScreen('lobbyScreen');
-  renderPlayers();
-  showToast(t('toast_created') + ' (' + t('offline_txt') + ')');
-}
-
-async function joinRoom() {
-  const code = document.getElementById('joinCode').value.trim().toUpperCase();
-  if(!code || code.length < 4) { showToast(lang==='ar'?'أدخل كود صحيح':'Enter a valid code'); return; }
-  
-  if(!db) { showToast(lang==='ar'?'يحتاج إنترنت للانضمام':'Internet required to join'); return; }
-  
-  roomCode = code;
-  isHost = false;
-  
-  try {
-    const snap = await db.ref('rooms/' + roomCode).once('value');
-    if(!snap.exists()) {
-      showToast(lang==='ar'?'الغرفة غير موجودة':'Room not found');
-      return;
-    }
-    
-    const playerEmoji = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
-    roomRef = db.ref('rooms/' + roomCode);
-    
-    await roomRef.child('players/' + myId).set({
-      name: myName, emoji: playerEmoji, score: 0, joinedAt: Date.now()
+function joinRoom(codeArg){
+  if(needName()) return;
+  const code=(codeArg||$('#codeIn').value).trim().toUpperCase(); if(code.length<4){ $('#codeIn').focus(); toast(t('codePh')); return; }
+  leaveNet(); busy(true);
+  const peer=new Peer(PEER_OPTS); NET.peer=peer; let ok=false;
+  const timer=setTimeout(()=>{ if(!ok){ busy(false); toast(t('connFail')); leaveNet(); } },15000);
+  peer.on('open',id=>{
+    NET.id=id; const conn=peer.connect(PREFIX+code,{reliable:true}); NET.conn=conn;
+    conn.on('open',()=>{ conn.send({k:'hello',name:myName(),lang:L}); });
+    conn.on('data',d=>{
+      lastSeen.set('host',Date.now());
+      if(d.k==='ping') return;
+      if(d.k==='bye'){ hostGone(); return; }
+      if(d.k==='welcome'){ ok=true; clearTimeout(timer); busy(false); NET.role='guest'; NET.code=d.code; chat=d.chat||[]; history.replaceState(null,'','?room='+d.code+(qs.get('peerhost')?`&peerhost=${qs.get('peerhost')}&peerport=${qs.get('peerport')||9000}`:'')); startHeartbeat(); go('lobby'); }
+      else if(d.k==='state'){ const wasStarted=S.started, oldCat=S.cat; S=d.s; if(S.cat!==oldCat&&S.cat==='hot') {} if(S.started&&!wasStarted) go('game'); else renderAll(); }
+      else if(d.k==='chat') addMsg(d.m);
+      else if(d.k==='talk') setTalk(d.id,d.on);
     });
-    
-    // Add to turn order
-    const data = snap.val();
-    const order = data.turnOrder || [data.host];
-    if(!order.includes(myId)) order.push(myId);
-    await roomRef.child('turnOrder').set(order);
-    
-    listenToRoom();
-    document.getElementById('displayCode').textContent = roomCode;
-    
-    // Get current state
-    if(data.status === 'game') {
-      currentLevel = data.level || 0;
-      showScreen('gameScreen');
-      renderGameState(data);
-    } else {
-      showScreen('lobbyScreen');
-    }
-    showToast(t('toast_joined'));
-  } catch(e) {
-    console.error('Join room error:', e);
-    showToast(lang==='ar'?'خطأ في الانضمام':'Error joining room');
-  }
-}
-
-function listenToRoom() {
-  if(!db || !roomRef) return;
-  
-  // Listen to full room
-  const unsub = roomRef.on('value', snap => {
-    if(!snap.exists()) {
-      showToast(lang==='ar'?'انتهت الغرفة':'Room ended');
-      leaveRoom();
-      return;
-    }
-    const data = snap.val();
-    players = data.players || {};
-    currentTurnId = data.currentTurn || '';
-    
-    renderPlayers();
-    
-    if(data.status === 'game') {
-      const prevLevel = currentLevel;
-      currentLevel = data.level || 0;
-      const newIdx = data.cardIdx !== undefined ? data.cardIdx : 0;
-      const needsRefresh = newIdx !== currentCardIdx || prevLevel !== currentLevel;
-      currentCardIdx = newIdx;
-      if(needsRefresh) displayCard();
-      updateTurnUI();
-      renderScores();
-      renderWhoRow();
-      // Show game screen if not already there
-      const gs = document.getElementById('gameScreen');
-      if(gs && gs.classList.contains('off')) {
-        showScreen('gameScreen');
-        setupGame();
-      }
-    }
+    conn.on('close',()=>hostGone());
   });
-  unsubscribers.push(() => roomRef.off('value', unsub));
-  
-  // Listen to chat
-  const chatRef = roomRef.child('chat');
-  chatRef.on('child_added', snap => {
-    const msg = snap.val();
-    if(msg) addChatMessage(msg.senderId, msg.senderName, msg.text, msg.senderId === myId);
+  peer.on('call',onCall);
+  peer.on('error',e=>{ clearTimeout(timer); busy(false); toast(e.type==='peer-unavailable'?t('noRoom'):t('connFail')); if(!ok) leaveNet(); });
+}
+function leaveNet(){
+  clearInterval(hbTimer); lastSeen.clear();
+  try{ if(NET.role==='host') broadcast({k:'bye'}); else if(NET.conn&&NET.conn.open) NET.conn.send({k:'bye'}); }catch(e){}
+  stopVoice(true);
+  try{NET.conn&&NET.conn.close()}catch(e){} try{NET.peer&&NET.peer.destroy()}catch(e){}
+  Object.assign(NET,{role:null,peer:null,conn:null,id:null,code:null}); NET.conns=new Map(); talking.clear();
+  if(location.search.includes('room=')) history.replaceState(null,'',location.pathname+(qs.get('peerhost')?`?peerhost=${qs.get('peerhost')}&peerport=${qs.get('peerport')||9000}`:''));
+}
+function leave(){ if(!confirm(t('confirmLeave'))) return; leaveNet(); S=freshState(); go('home'); }
+
+/* ───────── chat with translation ───────── */
+let chat=[], unread=0, chatOpen=false, autoTr=store.get('autotr',true);
+const trCache=new Map();
+function sys(key,name){ addMsg({id:Date.now()+Math.random(),sys:key,name}); if(NET.role==='host') broadcast({k:'chat',m:{id:Date.now()+Math.random(),sys:key,name}}); }
+function addMsg(m){ chat.push(m); if(chat.length>300) chat.shift(); if(!m.sys&&m.from!==NET.id){ if(!chatOpen){unread++; beep('msg'); buzz(20);} if(cur==='game'&&!chatOpen) toast(`${m.name}: ${m.text.slice(0,60)}`);} renderChat(); renderBadges(); }
+async function translate(text,to,from){
+  const key=to+'|'+text; if(trCache.has(key)) return trCache.get(key);
+  let out=null;
+  try{ const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${to}&dt=t&q=${encodeURIComponent(text)}`); const j=await r.json(); out=j[0].map(x=>x[0]).join(''); }
+  catch(e){ try{ const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from&&from!==to?from:'en'}|${to}`); const j=await r.json(); out=j.responseData&&j.responseData.translatedText; }catch(e2){} }
+  if(out) trCache.set(key,out); return out;
+}
+function renderChat(){
+  const box=$('#msgs'); if(!box) return;
+  if(!chat.length){ box.innerHTML=`<p class="chat-empty">${t('emptyChat')}</p>`; return; }
+  const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  box.innerHTML=chat.map(m=>{
+    if(m.sys) return `<div class="msg sys">${esc(t(m.sys,{name:m.name}))}</div>`;
+    const mine=m.from===NET.id; const tr=trCache.get(L+'|'+m.text); const showTr=!mine&&tr&&tr.trim().toLowerCase()!==m.text.trim().toLowerCase()&&(autoTr||m.wantTr)&&!m.orig;
+    const body=showTr?`${esc(tr)}<div class="orig">${esc(m.text)}</div>`:esc(m.text);
+    const ctl=mine?'':(m.loading?`<span>${t('translating')}</span>`:showTr?`<button data-orig="${m.id}">${t('showOrig')}</button>`:(m.fail?`<span>${t('trFail')}</span>`:`<button data-tr="${m.id}">${t('translate')}</button>`));
+    return `<div class="msg ${mine?'mine':''}"><span class="by">${esc(m.name)} · ${LANG_NAMES[m.lang]||''}</span><div class="bub">${body}</div>${mine?'':`<div class="tr">${ctl}</div>`}</div>`;
+  }).join('');
+  if(atBottom||chatOpen) box.scrollTop=box.scrollHeight;
+  if(autoTr) chat.forEach(m=>{ if(!m.sys&&m.from!==NET.id&&m.lang!==L&&!m.tried){ m.tried=true; doTr(m); } });
+}
+async function doTr(m){ m.loading=true; m.orig=false; m.wantTr=true; renderChatSoon(); const r=await translate(m.text,L,m.lang); m.loading=false; if(!r) m.fail=true; renderChatSoon(); }
+let rcT; const renderChatSoon=()=>{clearTimeout(rcT);rcT=setTimeout(renderChat,30)};
+function sendChat(txt){
+  const text=(txt??$('#chatIn').value).trim(); if(!text||!NET.role) return;
+  $('#chatIn').value=''; autosize();
+  if(NET.role==='host'){ const p=S.players[0]; const m={id:Date.now()+Math.random(),from:NET.id,name:p.name,lang:L,text:text.slice(0,600)}; addMsg(m); broadcast({k:'chat',m}); }
+  else NET.conn&&NET.conn.open&&NET.conn.send({k:'chat',text});
+  beep('tap');
+}
+function openChat(){ unread=0; chatOpen=true; openSheet('chatSheet'); chatOpen=true; renderChat(); renderBadges(); $('#trSw').classList.toggle('on',autoTr); $('#quick').innerHTML=['👋','😂','🔥','😳','❤️','👏','🙈','😈'].map(e=>`<button data-quick="${e}">${e}</button>`).join(''); setTimeout(()=>{ $('#msgs').scrollTop=1e6; },50); }
+function autosize(){ const a=$('#chatIn'); a.style.height='auto'; a.style.height=Math.min(a.scrollHeight,130)+'px'; }
+
+/* ───────── voice: walkie-talkie or open mic over WebRTC ───────── */
+const V={on:false,stream:null,mode:store.get('vmode','ptt'),calls:new Map(),audios:new Map(),pressed:false};
+const talking=new Set();
+async function startVoice(){
+  if(!NET.role) return;
+  try{ V.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}}); }
+  catch(e){ toast(t('micDenied')); return; }
+  V.on=true; setMic(V.mode==='open');
+  sendAct({a:'voice',on:true});
+  S.players.forEach(p=>{ if(p.id!==NET.id&&p.v) callPeer(p.id); });
+  renderAll(); beep('card');
+}
+function stopVoice(silent){
+  if(V.stream) V.stream.getTracks().forEach(tr=>tr.stop());
+  V.stream=null; V.on=false; V.pressed=false;
+  [...V.calls.keys()].forEach(hangup);
+  if(!silent&&NET.role){ sendAct({a:'voice',on:false}); sendTalk(false); }
+  renderVoice();
+}
+function setMic(on){ if(V.stream) V.stream.getAudioTracks().forEach(tr=>tr.enabled=on); }
+function callPeer(id){ if(!NET.peer||V.calls.has(id)) return; const call=NET.peer.call(id,V.stream); if(call) wireCall(call); }
+function onCall(call){ if(!V.on){ call.close(); return; } call.answer(V.stream); wireCall(call); }
+function wireCall(call){
+  V.calls.set(call.peer,call);
+  call.on('stream',rs=>{ let a=V.audios.get(call.peer); if(!a){a=new Audio(); a.autoplay=true; a.playsInline=true; V.audios.set(call.peer,a); document.body.appendChild(a);} a.srcObject=rs; a.play().catch(()=>{}); });
+  call.on('close',()=>hangup(call.peer)); call.on('error',()=>hangup(call.peer));
+}
+function hangup(id){ const c=V.calls.get(id); V.calls.delete(id); try{c&&c.close()}catch(e){} const a=V.audios.get(id); if(a){a.srcObject=null;a.remove();V.audios.delete(id);} }
+function sendTalk(on){ if(NET.role==='host'){ setTalk(NET.id,on); broadcast({k:'talk',id:NET.id,on}); } else if(NET.conn&&NET.conn.open){ NET.conn.send({k:'talk',on}); setTalk(NET.id,on); } }
+function setTalk(id,on){ const had=talking.has(id); on?talking.add(id):talking.delete(id); renderVoice(); if(had!==!!on&&cur==='game') renderScoresBar(); }
+function pttDown(e){ e.preventDefault(); if(!V.on||V.mode!=='ptt'||V.pressed) return; V.pressed=true; setMic(true); sendTalk(true); buzz(25); renderVoice(); }
+function pttUp(){ if(!V.pressed) return; buzz(10); V.pressed=false; setMic(false); sendTalk(false); renderVoice(); }
+function renderVoice(){
+  const others=S.players.filter(p=>talking.has(p.id)&&p.id!==NET.id).map(p=>t('isTalking',{name:p.name}));
+  const inV=S.players.filter(p=>p.v).map(p=>p.name), live=V.mode==='open'||V.pressed;
+  ['#vdock','#vdockLobby'].forEach(sel=>{ const d=$(sel); if(!d) return; d.classList.toggle('on',V.on);
+    if(!V.on){ d.innerHTML=''; return; }
+    if(!d.firstChild) d.innerHTML=`<button class="ptt" data-ptt></button><div class="vinfo"><span class="st"></span><span class="who"></span><div class="seg"><button data-vmode="ptt"></button><button data-vmode="open"></button><button data-act="voiceOff" aria-label="off">✕</button></div></div>`;
+    const btn=d.querySelector('.ptt'); btn.className='ptt'+(V.mode==='open'?' open':'')+(V.pressed?' live':''); btn.textContent=V.mode==='open'?'🔴':'🎙'; btn.setAttribute('aria-label',t('holdTalk'));
+    d.querySelector('.st').textContent=live?t('talkingNow'):(V.mode==='ptt'?t('holdTalk'):t('openMic'));
+    d.querySelector('.who').textContent=others.join(' · ')||('🎧 '+inV.join(', '));
+    const [b1,b2]=d.querySelectorAll('[data-vmode]'); b1.textContent='📻 '+t('ptt'); b2.textContent='🎤 '+t('openMic');
+    b1.classList.toggle('sel',V.mode==='ptt'); b2.classList.toggle('sel',V.mode==='open');
   });
+  const vb=$('#voiceBtnLobby'); if(vb) vb.style.display=(NET.role&&!V.on)?'':'none';
+  const vi=$('#voiceIcon'); if(vi) vi.style.background=V.on?'var(--light)':'';
 }
+/* ───────── custom cards ───────── */
+let addCat='light', addTy='t';
+function openAddQ(){ openSheet('addSheet'); renderAdd(); }
+function renderAdd(){
+  $('#addCats').innerHTML=CATS.map(c=>`<button class="cat ${addCat===c?'sel':''}" data-addcat="${c}" style="background:var(--${c});min-height:64px;padding:8px;align-items:center;justify-content:center"><b style="font-size:.82rem;text-align:center">${EMO[c]}<br>${t('cat_'+c)}</b></button>`).join('');
+  $('#addType').innerHTML=`<button class="btn ${addTy==='t'?'main':''}" data-addty="t">${t('truth')}</button><button class="btn ${addTy==='d'?'main':''}" data-addty="d">${t('dare')}</button>`;
+}
+function saveQ(){ const x=$('#addText').value.trim(); if(x.length<3){$('#addText').focus();return;} (custom[addCat]=custom[addCat]||[]).push({ty:addTy,x}); store.set('custom',custom); delete decks[addCat+addTy]; $('#addText').value=''; toast(t('saved')); closeSheets(); renderAll(); }
 
-function leaveRoom() {
-  if(db && roomRef) {
-    if(isHost) {
-      roomRef.remove();
-    } else {
-      roomRef.child('players/' + myId).remove();
-    }
-    unsubscribers.forEach(fn => fn());
-    unsubscribers = [];
-    roomRef = null;
+/* ───────── events ───────── */
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act],[data-go],[data-lang],[data-cat],[data-pick],[data-del],[data-tr],[data-orig],[data-quick],[data-vmode],[data-addcat],[data-addty]'); if(!el) return;
+  const d=el.dataset;
+  if(d.go){ beep('tap'); go(d.go); if(d.go==='online'){ $('#myName').value=store.get('myname',''); } return; }
+  if(d.lang) return setLang(d.lang);
+  if(d.cat) return chooseCat(d.cat);
+  if(d.pick) return act({a:'pick',ty:d.pick});
+  if(d.del!=null){ $$('#localList input').forEach(i=>localNames[+i.dataset.pi]=i.value); localNames.splice(+d.del,1); renderSetup(); return; }
+  if(d.tr){ const m=chat.find(x=>String(x.id)===d.tr); if(m){m.fail=false; doTr(m);} return; }
+  if(d.orig){ const m=chat.find(x=>String(x.id)===d.orig); if(m){m.orig=true; m.wantTr=false; renderChat();} return; }
+  if(d.quick) return sendChat(d.quick);
+  if(d.vmode){ V.mode=d.vmode; store.set('vmode',V.mode); setMic(V.mode==='open'); sendTalk(V.mode==='open'); renderVoice(); return; }
+  if(d.addcat){ addCat=d.addcat; renderAdd(); return; }
+  if(d.addty){ addTy=d.addty; renderAdd(); return; }
+  switch(d.act){
+    case 'rules': modal(`<h3>${t('rules')}</h3><p>${t('rulesText')}</p><p>${t('online_hint')}</p><button class="btn main" data-act="closeModal">OK</button>`); break;
+    case 'closeModal': closeModal(); break;
+    case 'addLocal': $$('#localList input').forEach(i=>localNames[+i.dataset.pi]=i.value); if(localNames.length<12){localNames.push('');renderSetup(); const ins=$$('#localList input'); ins[ins.length-1].focus();} break;
+    case 'localStart': startLocal(); break;
+    case 'create': createRoom(); break;
+    case 'join': joinRoom(); break;
+    case 'share': { const url=location.origin+location.pathname+'?room='+NET.code+(qs.get('peerhost')?`&peerhost=${qs.get('peerhost')}&peerport=${qs.get('peerport')||9000}`:''); const txt=`${t('name')} — ${t('roomCode')}: ${NET.code}`;
+      if(navigator.share) navigator.share({title:t('name'),text:txt,url}).catch(()=>{}); else navigator.clipboard.writeText(txt+'\n'+url).then(()=>toast(t('copied'))).catch(()=>toast(url)); } break;
+    case 'lobbyStart': if(S.players.length>=2) go('cats'); break;
+    case 'catsBack': if(NET.role) go(S.started?'game':'lobby'); else go('setup'); break;
+    case 'changeCat': if(NET.role==='guest'){toast(t('waitHost'));break;} renderCats('#catGrid2'); openSheet('catSheet'); break;
+    case 'leave': leave(); break;
+    case 'chat': openChat(); break;
+    case 'closeSheets': closeSheets(); break;
+    case 'send': sendChat(); break;
+    case 'autoTr': autoTr=!autoTr; store.set('autotr',autoTr); $('#trSw').classList.toggle('on',autoTr); chat.forEach(m=>{m.tried=false;m.orig=false;}); renderChat(); break;
+    case 'voice': V.on?stopVoice():startVoice(); break;
+    case 'voiceOff': stopVoice(); break;
+    case 'scores': renderScores(); openSheet('scoreSheet'); break;
+    case 'reset': act({a:'reset'}); closeSheets(); break;
+    case 'prev': goPrev(); renderGame(); break;
+    case 'next': if(viewIdx!=null){ viewIdx++; if(viewIdx>=S.hist.length-(S.card?1:0)) viewIdx=null; } renderGame(); break;
+    case 'live': viewIdx=null; renderGame(); break;
+    case 'done': case 'pass': case 'skip': act({a:d.act}); break;
+    case 'ageYes': ageOk=true; closeModal(); ageCb&&ageCb.ok(); ageCb=null; break;
+    case 'ageNo': closeModal(); ageCb&&ageCb.no(); ageCb=null; break;
+    case 'openAddQ': openAddQ(); break;
+    case 'saveQ': saveQ(); break;
   }
-  players = {};
-  isSolo = false;
-  isHost = false;
-  showScreen('homeScreen');
-}
+});
+// push-to-talk needs press-and-hold
+document.addEventListener('pointerdown',e=>{ const b=e.target.closest('[data-ptt]'); if(!b) return; try{b.setPointerCapture(e.pointerId)}catch(_){} pttDown(e); });
+['pointerup','pointercancel'].forEach(ev=>document.addEventListener(ev,()=>pttUp(),true));
+document.addEventListener('keydown',e=>{ if(e.code==='Space'&&V.on&&V.mode==='ptt'&&document.activeElement&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(!V.pressed) pttDown(e); } });
+document.addEventListener('keyup',e=>{ if(e.code==='Space') pttUp(); });
+window.addEventListener('blur',()=>pttUp());
+document.addEventListener('contextmenu',e=>{ if(e.target.closest('[data-ptt]')) e.preventDefault(); });
+document.addEventListener('input',e=>{ if(e.target.dataset.pi!=null) localNames[+e.target.dataset.pi]=e.target.value; if(e.target.id==='chatIn') autosize(); if(e.target.id==='myName') e.target.style.borderColor=''; });
+$('#chatIn').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
+$('#codeIn').addEventListener('keydown',e=>{ if(e.key==='Enter') joinRoom(); });
+// swipe the card to move through earlier cards
+(()=>{ let x0=null; const c=$('#card');
+  c.addEventListener('pointerdown',e=>{x0=e.clientX}); c.addEventListener('pointerup',e=>{ if(x0==null) return; let dx=e.clientX-x0; x0=null; if(Math.abs(dx)<60||maxReview()<0) return; if(L==='ar') dx=-dx;
+    if(dx>0){ goPrev(); } else if(viewIdx!=null){ viewIdx++; if(viewIdx>=S.hist.length-(S.card?1:0)) viewIdx=null; }
+    beep('tap'); renderGame(); }); })();
+window.addEventListener('pagehide',()=>{ try{ if(NET.role==='host') broadcast({k:'bye'}); else if(NET.conn&&NET.conn.open) NET.conn.send({k:'bye'}); NET.peer&&NET.peer.destroy(); }catch(e){} });
 
-function copyCode() {
-  navigator.clipboard.writeText(roomCode).catch(() => {});
-  showToast(t('toast_copied'));
-}
-
-// ══════════════════════════════════════════
-// LOBBY & PLAYERS
-// ══════════════════════════════════════════
-function renderPlayers() {
-  const list = document.getElementById('playersList');
-  list.innerHTML = '';
-  Object.entries(players).forEach(([pid, p]) => {
-    const isMe = pid === myId;
-    const isHostP = isSolo ? true : (roomRef ? false : true);
-    const div = document.createElement('div');
-    div.className = 'p-item';
-    div.innerHTML = `
-      <div class="p-av">${p.emoji||'👤'}</div>
-      <div class="p-name">${p.name}</div>
-      ${isMe ? `<span class="badge you-b">${t('you')}</span>` : ''}
-      ${isHost && pid === myId ? `<span class="badge host-b">${t('host')}</span>` : ''}
-    `;
-    list.appendChild(div);
-  });
-}
-
-// ══════════════════════════════════════════
-// LEVEL SELECTION
-// ══════════════════════════════════════════
-function goToLevels() {
-  if(!isSolo && !isHost) {
-    showToast(lang==='ar'?'فقط المضيف يمكنه تغيير المستوى':'Only host can change level');
-    return;
-  }
-  showScreen('levelScreen');
-}
-
-function selectLevel(lvl) {
-  currentLevel = lvl;
-  currentCardIdx = 0;
-  usedIndices = [];
-  
-  if(isSolo && Object.keys(players).length === 0) {
-    players[myId] = { name: myName, emoji: EMOJIS[0], score: 0 };
-    currentTurnId = myId;
-  }
-  
-  if(db && roomRef) {
-    // Update Firebase - all players will receive this via listener
-    roomRef.update({ level: lvl, cardIdx: 0, status: 'game', currentTurn: currentTurnId || myId });
-  }
-  
-  showScreen('gameScreen');
-  setupGame();
-  updateLvlPill();
-}
-
-// ══════════════════════════════════════════
-// GAME LOGIC
-// ══════════════════════════════════════════
-function setupGame() {
-  document.getElementById('gameRoomName').textContent = roomCode === 'SOLO' ? (lang==='ar'?'لعب منفرد':'Solo') : roomCode;
-  renderScores();
-  renderWhoRow();
-  updateTurnUI();
-  displayCard();
-}
-
-function getQuestions() {
-  const base = lang === 'ar' ? QUESTIONS_AR[currentLevel] : QUESTIONS_EN[currentLevel];
-  const custom = customQuestions[currentLevel];
-  return [...base, ...custom];
-}
-
-function displayCard() {
-  const qs = getQuestions();
-  if(currentCardIdx >= qs.length) currentCardIdx = 0;
-  
-  const q = qs[currentCardIdx];
-  const card = document.getElementById('theCard');
-  const cardQ = document.getElementById('cardQuestion');
-  const cardNum = document.getElementById('cardNum');
-  const cardIco = document.getElementById('cardIco');
-  
-  const icos = ['😊','💙','🔥','🔞'];
-  
-  card.className = `the-card cb${currentLevel+1}`;
-  card.classList.add('flip');
-  setTimeout(() => card.classList.remove('flip'), 500);
-  
-  cardIco.textContent = icos[currentLevel];
-  cardQ.textContent = q || (t('card_start'));
-  cardNum.textContent = `#${currentCardIdx+1}/${qs.length}`;
-  
-  // Lock/unlock card based on turn
-  const isMyTurn = isSolo || currentTurnId === myId;
-  if(isMyTurn) {
-    card.style.cursor = 'pointer';
-    card.style.opacity = '1';
-    document.getElementById('cardActions').style.display = 'flex';
-  } else {
-    card.style.cursor = 'default';
-    card.style.opacity = '.8';
-    document.getElementById('cardActions').style.display = 'flex'; // show but disabled visually
-  }
-  
-  updateLvlPill();
-}
-
-function nextCard() {
-  const isMyTurn = isSolo || currentTurnId === myId;
-  if(!isMyTurn && !isSolo) {
-    showToast(t('toast_noturn'));
-    return;
-  }
-  
-  const qs = getQuestions();
-  currentCardIdx = (currentCardIdx + 1) % qs.length;
-  
-  if(db && roomRef) {
-    roomRef.update({ cardIdx: currentCardIdx });
-  } else {
-    displayCard();
-  }
-}
-
-function markAnswered() {
-  const isMyTurn = isSolo || currentTurnId === myId;
-  if(!isMyTurn && !isSolo) {
-    showToast(t('toast_noturn'));
-    return;
-  }
-  
-  // Add score point
-  if(db && roomRef) {
-    const score = (players[myId]?.score || 0) + 1;
-    roomRef.child('players/' + myId + '/score').set(score);
-    players[myId].score = score;
-  } else {
-    if(players[myId]) players[myId].score = (players[myId].score || 0) + 1;
-  }
-  
-  showToast(t('toast_answered'));
-  renderScores();
-  
-  // Advance turn to next player, then move to next card
-  const qs = getQuestions();
-  currentCardIdx = (currentCardIdx + 1) % qs.length;
-  advanceTurn();
-  
-  if(db && roomRef) {
-    roomRef.update({ cardIdx: currentCardIdx });
-  } else {
-    displayCard();
-  }
-}
-
-function advanceTurn() {
-  const pIds = Object.keys(players);
-  if(pIds.length <= 1) return;
-  
-  const curIdx = pIds.indexOf(currentTurnId);
-  const nextIdx = (curIdx + 1) % pIds.length;
-  currentTurnId = pIds[nextIdx];
-  
-  if(db && roomRef) {
-    roomRef.update({ currentTurn: currentTurnId });
-  }
-  
-  updateTurnUI();
-  renderWhoRow();
-  renderScores();
-  
-  // Show turn overlay for the new player
-  if(currentTurnId === myId) {
-    showTurnOverlay();
-  }
-}
-
-function updateTurnUI() {
-  const isMyTurn = isSolo || currentTurnId === myId;
-  const pill = document.getElementById('turnPill');
-  
-  if(isMyTurn) {
-    pill.textContent = t('myturn');
-    pill.className = 'turn-pill my-turn-pill';
-  } else {
-    const name = players[currentTurnId]?.name || '...';
-    pill.textContent = lang==='ar' ? `دور ${name}` : `${name}'s turn`;
-    pill.className = 'turn-pill other-turn-pill';
-  }
-}
-
-function showTurnOverlay() {
-  const p = players[myId];
-  document.getElementById('turnEmoji').textContent = p?.emoji || '🎯';
-  document.getElementById('turnName').textContent = myName;
-  document.getElementById('turnSub').textContent = t('turnSub');
-  document.getElementById('turnOkBtn').textContent = t('turnOkBtn');
-  document.getElementById('turnOverlay').classList.remove('off');
-}
-
-function dismissTurnOverlay() {
-  document.getElementById('turnOverlay').classList.add('off');
-}
-
-function renderGameState(data) {
-  players = data.players || {};
-  currentTurnId = data.currentTurn || '';
-  currentCardIdx = data.cardIdx || 0;
-  setupGame();
-}
-
-function updateLvlPill() {
-  const pill = document.getElementById('currentLvlPill');
-  const pills = ['lp1','lp2','lp3','lp4'];
-  if(!pill) return;
-  pill.className = 'lvl-pill ' + pills[currentLevel];
-  pill.textContent = t('lvl_pills')[currentLevel] || '';
-}
-
-// ══════════════════════════════════════════
-// SCORES & WHO ROW
-// ══════════════════════════════════════════
-function renderScores() {
-  const bar = document.getElementById('scoresBar');
-  bar.innerHTML = '';
-  Object.entries(players).forEach(([pid, p]) => {
-    const isActive = pid === currentTurnId;
-    const chip = document.createElement('div');
-    chip.className = 'sc-chip' + (isActive ? ' active-p' : '');
-    chip.innerHTML = `
-      <div style="font-size:1rem;margin-bottom:3px">${p.emoji||'👤'}</div>
-      <div class="sc-n">${p.name}</div>
-      <div class="sc-v">${p.score||0}</div>
-      ${isActive ? `<div class="sc-turn">▶</div>` : ''}
-    `;
-    bar.appendChild(chip);
-  });
-}
-
-function renderWhoRow() {
-  const row = document.getElementById('whoRow');
-  row.innerHTML = '';
-  Object.entries(players).forEach(([pid, p]) => {
-    const isActive = pid === currentTurnId;
-    const chip = document.createElement('div');
-    chip.className = 'who-chip' + (isActive ? ' active-turn' : '');
-    chip.innerHTML = `
-      <div class="who-av">${p.emoji||'👤'}</div>
-      <span>${p.name}${pid===myId?' ('+t('you')+')':''}</span>
-      ${isActive ? ' ▶' : ''}
-    `;
-    row.appendChild(chip);
-  });
-}
-
-// ══════════════════════════════════════════
-// CHAT
-// ══════════════════════════════════════════
-function toggleChat() {
-  const panel = document.getElementById('chatPanel');
-  const arrow = document.getElementById('chatArrow');
-  const isExpanded = panel.classList.contains('expanded');
-  panel.classList.toggle('expanded', !isExpanded);
-  panel.classList.toggle('collapsed', isExpanded);
-  arrow.textContent = isExpanded ? '▲' : '▼';
-  if(!isExpanded) {
-    chatUnread = 0;
-    const badge = document.getElementById('chatBadge');
-    badge.style.display = 'none';
-  }
-}
-
-function sendChat() {
-  const inp = document.getElementById('chatInp');
-  const text = inp.value.trim();
-  if(!text) return;
-  inp.value = '';
-  
-  const msg = { senderId: myId, senderName: myName, text, time: Date.now() };
-  
-  if(db && roomRef) {
-    roomRef.child('chat').push(msg);
-  } else {
-    addChatMessage(myId, myName, text, true);
-  }
-}
-
-function addChatMessage(senderId, senderName, text, isMe) {
-  const msgs = document.getElementById('chatMsgs');
-  const isSystem = senderId === 'system';
-  
-  const div = document.createElement('div');
-  div.className = 'msg ' + (isSystem ? 'sys' : (isMe ? 'me' : 'them'));
-  
-  if(!isSystem && !isMe) {
-    div.innerHTML = `<div class="msg-sender">${senderName}</div>`;
-  }
-  
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.textContent = text;
-  div.appendChild(bubble);
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  
-  // Badge
-  const panel = document.getElementById('chatPanel');
-  if(panel.classList.contains('collapsed') && !isMe) {
-    chatUnread++;
-    const badge = document.getElementById('chatBadge');
-    badge.style.display = 'flex';
-    badge.textContent = chatUnread;
-  }
-}
-
-// ══════════════════════════════════════════
-// CUSTOM QUESTIONS
-// ══════════════════════════════════════════
-function openAddQ() {
-  document.getElementById('addqPanel').classList.add('open');
-  document.getElementById('overlay').classList.add('on');
-  renderCustomList();
-}
-
-function addCustomQ() {
-  const text = document.getElementById('addqText').value.trim();
-  const lvl = parseInt(document.getElementById('addqLevel').value);
-  if(!text) { showToast(t('toast_noq')); return; }
-  
-  customQuestions[lvl].push(text);
-  document.getElementById('addqText').value = '';
-  showToast(t('toast_qadded'));
-  renderCustomList();
-  
-  // Update level counts
-  const cnts = ['lv1_cnt','lv2_cnt','lv3_cnt','lv4_cnt'];
-  const baseCounts = [49,50,57,45];
-  const keys = ['lv1_cnt','lv2_cnt','lv3_cnt','lv4_cnt'];
-  const base = [t('lv1_cnt'),t('lv2_cnt'),t('lv3_cnt'),t('lv4_cnt')];
-}
-
-function renderCustomList() {
-  const list = document.getElementById('customQList');
-  list.innerHTML = '';
-  customQuestions.forEach((qs, lvl) => {
-    qs.forEach((q, idx) => {
-      const d = document.createElement('div');
-      d.style.cssText = 'background:var(--surf2);border-radius:10px;padding:8px 12px;display:flex;gap:8px;align-items:center;font-size:.82rem';
-      d.innerHTML = `<span style="flex:1">${t('lvl_icons')[lvl]} ${q}</span><button onclick="removeCustomQ(${lvl},${idx})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.9rem">🗑️</button>`;
-      list.appendChild(d);
-    });
-  });
-  if(customQuestions.flat().length === 0) {
-    list.innerHTML = `<div style="color:var(--dim);font-size:.8rem;text-align:center;padding:12px">${lang==='ar'?'لا توجد أسئلة مضافة بعد':'No custom questions yet'}</div>`;
-  }
-}
-
-function removeCustomQ(lvl, idx) {
-  customQuestions[lvl].splice(idx, 1);
-  renderCustomList();
-}
-
-// ══════════════════════════════════════════
-// PANELS
-// ══════════════════════════════════════════
-function closeAllPanels() {
-  document.getElementById('addqPanel').classList.remove('open');
-  const cp = document.getElementById('contactsPanel');
-  if(cp) cp.classList.remove('open');
-  document.getElementById('overlay').classList.remove('on');
-}
-
-function openContactsPanel() {
-  closeAllPanels();
-  const panel = document.getElementById('contactsPanel');
-  if(!panel) return;
-  // Render contacts in game panel
-  const list = document.getElementById('contactsListGame');
-  if(list) {
-    // reuse same logic
-    const tmpList = document.getElementById('contactsList');
-    const savedParent = tmpList ? tmpList.parentNode : null;
-    if(tmpList && savedParent) {
-      // temporarily swap
-      list.innerHTML = '';
-      renderContactsInto(list);
-    } else {
-      renderContactsInto(list);
-    }
-  }
-  panel.classList.add('open');
-  document.getElementById('overlay').classList.add('on');
-}
-
-function renderContactsInto(listEl) {
-  if(!listEl) return;
-  listEl.innerHTML = '';
-  const platforms = {
-    whatsapp: { color:'linear-gradient(135deg,#25D366,#128C7E)', icon:'📱', getUrl: v => 'https://wa.me/' + v.replace(/[^0-9]/g,'') },
-    telegram:  { color:'linear-gradient(135deg,#2AABEE,#229ED9)', icon:'✈️', getUrl: v => 'https://t.me/' + v.replace('@','') },
-    discord:   { color:'linear-gradient(135deg,#5865F2,#7289DA)', icon:'🎮', getUrl: v => null }
-  };
-  let hasAny = false;
-  Object.entries(players).forEach(([pid, p]) => {
-    if(!p.socials) return;
-    Object.entries(p.socials).forEach(([platform, val]) => {
-      if(!val || !platforms[platform]) return;
-      hasAny = true;
-      const cfg = platforms[platform];
-      const url = cfg.getUrl(val);
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      const openBtn = url
-        ? `<button class="open-btn" onclick="window.open('${url}','_blank')">${lang==='ar'?'فتح 🔗':'Open 🔗'}</button>`
-        : `<button class="open-btn" style="background:var(--surf2);color:var(--txt);border:1px solid var(--brd)" onclick="navigator.clipboard.writeText('${val}').then(()=>showToast('${lang==='ar'?'تم النسخ':'Copied'}!'))">${lang==='ar'?'نسخ':'Copy'}</button>`;
-      card.innerHTML = `
-        <div class="contact-platform" style="background:${cfg.color}">${cfg.icon}</div>
-        <div class="contact-info">
-          <div class="contact-name">${p.name}${pid===myId?' <span style="color:var(--green);font-size:.65rem">('+t('you')+')</span>':''}</div>
-          <div class="contact-handle">${val}</div>
-        </div>
-        ${openBtn}
-      `;
-      listEl.appendChild(card);
-    });
-  });
-  if(!hasAny) {
-    listEl.innerHTML = `<div style="color:var(--dim);font-size:.78rem;text-align:center;padding:10px">${lang==='ar'?'لا أحد أضاف روابط بعد 📵':'No contact links added yet 📵'}</div>`;
-  }
-}
-
-// ══════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ══════════════════════════════════════════
-// SOLO INIT PLAYERS
-// ══════════════════════════════════════════
-// Solo init already handled in selectLevel above
-
-// Also add dummy lvl_icons getter
-Object.defineProperty(T.ar, 'lvl_icons', { get: () => ['😊','💙','🔥','🔞'] });
-Object.defineProperty(T.en, 'lvl_icons', { get: () => ['😊','💙','🔥','🔞'] });
-
-
-// ══════════════════════════════════════════
-// BACK NAVIGATION
-// ══════════════════════════════════════════
-function goBackFromLevel() {
-  // If solo, go to home. If multiplayer, go to lobby
-  if(isSolo) {
-    isSolo = false;
-    players = {};
-    showScreen('homeScreen');
-  } else {
-    showScreen('lobbyScreen');
-  }
-}
-
-function confirmLeaveGame() {
-  const msg = lang === 'ar' 
-    ? 'هل تريد مغادرة اللعبة؟' 
-    : 'Do you want to leave the game?';
-  if(confirm(msg)) {
-    leaveRoom();
-    showScreen('homeScreen');
-  }
-}
-
-// ══════════════════════════════════════════
-// SOCIAL CONTACT LINKS
-// ══════════════════════════════════════════
-let mySocials = { whatsapp: '', telegram: '', discord: '' };
-
-function toggleSocialInput(platform) {
-  const boxes = ['whatsapp','telegram','discord'];
-  boxes.forEach(p => {
-    const el = document.getElementById('social_input_' + p);
-    if(el) el.style.display = (p === platform && el.style.display === 'none') ? 'block' : 'none';
-  });
-}
-
-function saveSocial(platform) {
-  const inp = document.getElementById('inp_' + (platform==='whatsapp'?'wa':platform==='telegram'?'tg':'dc'));
-  const val = inp.value.trim();
-  if(!val) return;
-  mySocials[platform] = val;
-  
-  const valEl = document.getElementById('val_' + (platform==='whatsapp'?'wa':platform==='telegram'?'tg':'dc'));
-  if(valEl) valEl.textContent = val;
-  
-  // Hide input
-  document.getElementById('social_input_' + platform).style.display = 'none';
-  
-  // Update Firebase if in room
-  if(db && roomRef) {
-    roomRef.child('players/' + myId + '/socials').set(mySocials);
-  }
-  showToast(lang==='ar' ? 'تم الحفظ ✓' : 'Saved ✓');
-}
-
-function renderContactsList() {
-  const list = document.getElementById('contactsList');
-  if(!list) return;
-  list.innerHTML = '';
-  
-  const platforms = {
-    whatsapp: { 
-      color:'linear-gradient(135deg,#25D366,#128C7E)', 
-      icon:'📱', 
-      label:'WhatsApp',
-      getUrl: v => {
-        const num = v.replace(/[^0-9]/g,'');
-        return 'https://wa.me/' + num;
-      }
-    },
-    telegram: { 
-      color:'linear-gradient(135deg,#2AABEE,#229ED9)', 
-      icon:'✈️', 
-      label:'Telegram',
-      getUrl: v => 'https://t.me/' + v.replace('@','')
-    },
-    discord: { 
-      color:'linear-gradient(135deg,#5865F2,#7289DA)', 
-      icon:'🎮', 
-      label:'Discord',
-      getUrl: v => null // Discord has no direct link, just show username
-    }
-  };
-  
-  let hasAny = false;
-  Object.entries(players).forEach(([pid, p]) => {
-    if(!p.socials) return;
-    const name = p.name;
-    const isMe = pid === myId;
-    Object.entries(p.socials).forEach(([platform, val]) => {
-      if(!val || !platforms[platform]) return;
-      hasAny = true;
-      const cfg = platforms[platform];
-      const url = cfg.getUrl(val);
-      const card = document.createElement('div');
-      card.className = 'contact-card';
-      const openBtn = url 
-        ? `<button class="open-btn" onclick="window.open('${url}','_blank')">${lang==='ar'?'فتح 🔗':'Open 🔗'}</button>`
-        : `<button class="open-btn" style="background:var(--surf2);color:var(--txt);border:1px solid var(--brd)" onclick="navigator.clipboard.writeText('${val}').then(()=>showToast('${lang==='ar'?'تم النسخ':'Copied'}!'))">${lang==='ar'?'نسخ':'Copy'}</button>`;
-      card.innerHTML = `
-        <div class="contact-platform" style="background:${cfg.color}">${cfg.icon}</div>
-        <div class="contact-info">
-          <div class="contact-name">${name}${isMe ? ' <span style=\"color:var(--green);font-size:.65rem\">('+t('you')+')</span>' : ''}</div>
-          <div class="contact-handle">${val}</div>
-        </div>
-        ${openBtn}
-      `;
-      list.appendChild(card);
-    });
-  });
-  
-  if(!hasAny) {
-    list.innerHTML = `<div style="color:var(--dim);font-size:.78rem;text-align:center;padding:10px">${lang==='ar'?'لا أحد أضاف روابط بعد 📵':'No contact links added yet 📵'}</div>`;
-  }
-}
-
-// Hook into renderPlayers to also update contacts
-const _origRenderPlayers = renderPlayers;
-function renderPlayers() {
-  _origRenderPlayers();
-  renderContactsList();
-  // Also push my socials if I have any
-  if(db && roomRef && (mySocials.whatsapp || mySocials.telegram || mySocials.discord)) {
-    roomRef.child('players/' + myId + '/socials').set(mySocials);
-  }
-}
-
+/* ───────── boot ───────── */
+applyLang();
+if(qs.get('room')){ go('online'); $('#codeIn').value=qs.get('room').toUpperCase(); $('#myName').value=store.get('myname',''); if($('#myName').value) setTimeout(()=>joinRoom(qs.get('room')),300); else $('#myName').focus(); }
 </script>
 </body>
 </html>
